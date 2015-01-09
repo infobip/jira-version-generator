@@ -1,5 +1,7 @@
 # Jira Version Generator
 
+[![Build Status](https://travis-ci.org/infobip/jira-version-generator.svg?branch=master)](https://travis-ci.org/infobip/jira-version-generator)
+
 Stash (post receive hook) plugin that generates Jira version and links issues to the version.
 
 Note that this plugin depends on Java version 7.
