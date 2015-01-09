@@ -175,9 +175,23 @@
 				<checksumPolicy>warn</checksumPolicy>
 			</snapshots>
 			<releases>
-				<enabled>true</enabled>
 				<checksumPolicy>warn</checksumPolicy>
 			</releases>
 		</repository>
 	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>atlassian-public</id>
+			<url>https://maven.atlassian.com/repository/public</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<snapshots>
+				<checksumPolicy>warn</checksumPolicy>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
