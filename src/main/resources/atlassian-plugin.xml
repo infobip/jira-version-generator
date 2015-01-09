@@ -1,0 +1,23 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+	<plugin-info>
+		<description>${project.description}</description>
+		<version>${project.version}</version>
+		<vendor name="${project.organization.name}" url="${project.organization.url}" />
+	</plugin-info>
+
+	<component-import key="applicationLinkService" interface="com.atlassian.applinks.api.ApplicationLinkService" />
+
+	<component key="jiraService" class="com.infobip.jira.ApplicationLinkedJiraService" public="true">
+		<interface>com.infobip.jira.JiraService</interface>
+	</component>
+
+	<repository-hook key="jiraVersionGeneratorHook" name="Jira version generator hook" class="com.infobip.stash.JiraVersionGeneratorHook">
+		<description>Generates Jira version and links issues to the version.</description>
+		<icon>images/icon.jpg</icon>
+
+		<config-form name="Jira Version Generator Configuration">
+			<view>com.infobip.stash.hook.formContents</view>
+			<directory location="/static/" />
+		</config-form>
+	</repository-hook>
+</atlassian-plugin>

@@ -1,0 +1,24 @@
+{namespace com.infobip.stash.hook}
+
+/**
+ * @param config
+ * @param? errors
+ */
+{template .formContents}
+    {call aui.form.textField}
+        {param id: 'jira-project-key' /}
+        {param value: $config['jira-project-key'] /}
+        {param labelContent: 'JIRA Project Key' /}
+        {param descriptionText: 'JIRA project key of the JIRA project to which versions should be submitted. For example, in JIRA issue key "ABC-123" "ABC" represents the project key.' /}
+        {param errorTexts: $errors ? $errors['jira-project-key'] : null /}
+        {param isRequired: true /}
+    {/call}
+    {call aui.form.textField}
+        {param id: 'jira-version-prefix' /}
+        {param value: $config['jira-version-prefix'] /}
+        {param labelContent: 'Jira version prefix' /}
+        {param descriptionText: 'Prefix that will be applied to each version generated on JIRA.' /}
+        {param errorTexts: $errors ? $errors['jira-version-prefix'] : null /}
+        {param isRequired: false /}
+    {/call}
+{/template}
