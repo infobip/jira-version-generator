@@ -173,6 +173,10 @@
 				<configuration>
 					<format>xml</format>
 					<aggregate>true</aggregate>
+					<instrumentation>
+						<exclude>com/fasterxml/**/*.class</exclude>
+						<exclude>org/joda/**/*.class</exclude>
+					</instrumentation>
 				</configuration>
 			</plugin>
 
