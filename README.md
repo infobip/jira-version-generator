@@ -12,7 +12,8 @@
 1. [Preconditions](#Preconditions)
 2. [Contributing](#Contributing)
 3. [Useful Atlassian Plugin SDK commands](#UsefulAtlassianPluginSDKCommands)
-4. [License](#License)
+4. [Credits](#Credits)
+5. [License](#License)
 
 ## <a name="Preconditions"></a> Preconditions:
 
@@ -45,6 +46,11 @@ Pull requests are welcome!
 - `atlas-cli` - interactive command line interface - passing pi reinstalls the plugin without restarting the stash server
 
 Note: **JDK 1.7** is required for local development (JDK 8 is *not supported yet*).
+
+## <a name="Credits"></a> Credits
+
+The original project (before open sourcing) was conceived by [Marko Bjelac](https://github.com/mbjelac) and the implementation
+and bug fixes were done by [Anja Hula](https://github.com/anhula) and [Lovro Pandzic](https://github.com/lpandzic).
 
 ## <a name="License"></a> License
 
