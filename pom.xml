@@ -11,6 +11,12 @@
 		Stash (post receive hook) plugin that generates Jira version and links Jira issues to the version.
 	</description>
 
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>9</version>
+	</parent>
+
 	<organization>
 		<name>Infobip</name>
 		<url>http://www.infobip.com/</url>
@@ -23,6 +29,22 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
+	<scm>
+		<url>https://github.com/infobip/jira-version-generator.git</url>
+		<connection>scm:git:git://github.com:infobip/jira-version-generator.git</connection>
+		<developerConnection>scm:git:git@github.com:infobip/jira-version-generator.git</developerConnection>
+	</scm>
+
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/infobip/jira-version-generator/issues</url>
+	</issueManagement>
+
+	<ciManagement>
+		<system>Travis</system>
+		<url>https://travis-ci.org/infobip/jira-version-generator</url>
+	</ciManagement>
 
 	<properties>
 		<!-- DEPENDENCY VERSIONS -->
