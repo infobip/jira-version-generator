@@ -11,12 +11,6 @@
 		Stash (post receive hook) plugin that generates Jira version and links Jira issues to the version.
 	</description>
 
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>9</version>
-	</parent>
-
 	<organization>
 		<name>Infobip</name>
 		<url>http://www.infobip.com/</url>
