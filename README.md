@@ -10,10 +10,14 @@
 ## Contents
 
 1. [Preconditions](#Preconditions)
-2. [Contributing](#Contributing)
-3. [Useful Atlassian Plugin SDK commands](#UsefulAtlassianPluginSDKCommands)
-4. [Credits](#Credits)
-5. [License](#License)
+2. [Usage](#Usage)
+3. [Features](#Features)
+    * [Core](#Core)
+    * [Version prefix](#VersionPrefix)
+4. [Contributing](#Contributing)
+5. [Useful Atlassian Plugin SDK commands](#UsefulAtlassianPluginSDKCommands)
+6. [Credits](#Credits)
+7. [License](#License)
 
 ## <a name="Preconditions"></a> Preconditions:
 
@@ -32,6 +36,44 @@ If the commit message matches the pattern, following actions are taken:
 
 If the version already exists on Jira, the version will not be created and issues will not be linked to the version.
 
+## <a name="Usage"></a> Usage:
+
+Jira version generator plugin needs to be activated for each repository:
+
+![project-settings](../docs/project-settings.png)
+
+JIRA project key parameter is required. Only issues with that project key will be updated on JIRA, others will be ignored.
+
+JIRA version prefix is optional. See [Version prefix](#VersionPrefix) for more information about this parameter.
+
+## <a name="Features"></a> Features:
+
+### <a name="Core"></a> Core:
+
+The core feature of this plugin is to extract information about releases from commit messages. For example, given the current state of the repo is
+
+![commits-1.png](../docs/commits-1.png)
+
+when a new commit arrives with a message `[maven-release-plugin] prepare release my-test-project-1.0.0`
+
+![commits-2.png](../docs/commits-2.png)
+
+the plugin generates the version 1.0.0 for the project and tags MTP-1, MTP-2 and MTP-3 issues with fix version 1.0.0.
+
+![version.png](../docs/version.png)
+
+### <a name="VersionPrefix"></a> Version prefix:
+
+Version prefix defines a static prefix that will be applied to every version created on JIRA.
+
+For example, for version prefix defined as
+
+![version-prefix.png](../docs/version-prefix.png)
+
+release version will look like
+
+![prefixed-version.png](../docs/prefixed-version.png)
+
 ## <a name="Contributing"></a> Contributing
 
 If you have an idea for a new feature or want to report a bug please use the issue tracker.
@@ -42,7 +84,7 @@ Pull requests are welcome!
 
 - `atlas-clean` - similar to mvn clean, removes local instances of products (Stash, Jira)
 - `atlas-debug` - runs the project product (Stash) in debug mode, [guide for remote debugging](https://developer.atlassian.com/display/DOCS/Creating+a+Remote+Debug+Target)
-- `atlas-run` --product jira -v 6.1.3 - runs local Jira instance of version 6.1.3
+- `atlas-run-standalone --product jira -v 6.1.3` - runs local Jira instance of version 6.1.3
 - `atlas-cli` - interactive command line interface - passing pi reinstalls the plugin without restarting the stash server
 
 Note: **JDK 1.7** is required for local development (JDK 8 is *not supported yet*).
