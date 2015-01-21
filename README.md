@@ -40,7 +40,7 @@ If the version already exists on Jira, the version will not be created and issue
 
 Jira version generator plugin needs to be activated for each repository:
 
-![project-settings](../docs/project-settings.png)
+![project-settings](https://raw.githubusercontent.com/infobip/jira-version-generator/master/docs/project-settings.png)
 
 JIRA project key parameter is required. Only issues with that project key will be updated on JIRA, others will be ignored.
 
@@ -52,15 +52,15 @@ JIRA version prefix is optional. See [Version prefix](#VersionPrefix) for more i
 
 The core feature of this plugin is to extract information about releases from commit messages. For example, given the current state of the repo is
 
-![commits-1.png](../docs/commits-1.png)
+![commits-1.png](https://raw.githubusercontent.com/infobip/jira-version-generator/master/docs/commits-1.png)
 
 when a new commit arrives with a message `[maven-release-plugin] prepare release my-test-project-1.0.0`
 
-![commits-2.png](../docs/commits-2.png)
+![commits-2.png](https://raw.githubusercontent.com/infobip/jira-version-generator/master/docs/commits-2.png)
 
 the plugin generates the version 1.0.0 for the project and tags MTP-1, MTP-2 and MTP-3 issues with fix version 1.0.0.
 
-![version.png](../docs/version.png)
+![version.png](https://raw.githubusercontent.com/infobip/jira-version-generator/master/docs/version.png)
 
 ### <a name="VersionPrefix"></a> Version prefix:
 
@@ -68,11 +68,11 @@ Version prefix defines a static prefix that will be applied to every version cre
 
 For example, for version prefix defined as
 
-![version-prefix.png](../docs/version-prefix.png)
+![version-prefix.png](https://raw.githubusercontent.com/infobip/jira-version-generator/master/docs/version-prefix.png)
 
 release version will look like
 
-![prefixed-version.png](../docs/prefixed-version.png)
+![prefixed-version.png](https://raw.githubusercontent.com/infobip/jira-version-generator/master/docs/prefixed-version.png)
 
 ## <a name="Contributing"></a> Contributing
 
