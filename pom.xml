@@ -11,6 +11,12 @@
 		Stash (post receive hook) plugin that generates Jira version and links Jira issues to the version.
 	</description>
 
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>9</version>
+	</parent>
+
 	<organization>
 		<name>Infobip</name>
 		<url>http://www.infobip.com/</url>
@@ -60,6 +66,7 @@
 		<!-- OTHER PROPERTIES -->
 		<java.version>1.7</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.javadoc.skip>true</maven.javadoc.skip>
 	</properties>
 
 	<dependencyManagement>
@@ -200,6 +207,15 @@
 				<groupId>org.eluder.coveralls</groupId>
 				<artifactId>coveralls-maven-plugin</artifactId>
 				<version>${coveralls-maven-plugin.version}</version>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<skipSource>true</skipSource>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
