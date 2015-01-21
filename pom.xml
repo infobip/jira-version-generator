@@ -6,7 +6,7 @@
 	<groupId>com.infobip</groupId>
 	<artifactId>jira-version-generator</artifactId>
 	<packaging>atlassian-plugin</packaging>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<description>
 		Stash (post receive hook) plugin that generates Jira version and links Jira issues to the version.
 	</description>
