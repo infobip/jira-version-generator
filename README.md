@@ -11,14 +11,15 @@
 ## Contents
 
 1. [Preconditions](#Preconditions)
-2. [Usage](#Usage)
-3. [Features](#Features)
+2. [Installation](#Installation)
+3. [Usage](#Usage)
+4. [Features](#Features)
     * [Core](#Core)
     * [Version prefix](#VersionPrefix)
-4. [Contributing](#Contributing)
-5. [Useful Atlassian Plugin SDK commands](#UsefulAtlassianPluginSDKCommands)
-6. [Credits](#Credits)
-7. [License](#License)
+5. [Contributing](#Contributing)
+6. [Useful Atlassian Plugin SDK commands](#UsefulAtlassianPluginSDKCommands)
+7. [Credits](#Credits)
+8. [License](#License)
 
 ## <a name="Preconditions"></a> Preconditions:
 
@@ -36,6 +37,10 @@ If the commit message matches the pattern, following actions are taken:
 4. Jira issues are linked to the Jira version
 
 If the version already exists on Jira, the version will not be created and issues will not be linked to the version.
+
+## <a name="Installation"></a> Installation:
+
+Simply download latest jar from the Maven Central [here](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator) and install it on your Stash instance.
 
 ## <a name="Usage"></a> Usage:
 
