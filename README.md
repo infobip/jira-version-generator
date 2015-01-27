@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/infobip/jira-version-generator.svg?branch=master)](https://travis-ci.org/infobip/jira-version-generator)
 [![Coverage Status](https://coveralls.io/repos/infobip/jira-version-generator/badge.png?branch=master)](https://coveralls.io/r/infobip/jira-version-generator?branch=master)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator)
 
 [Stash](https://www.atlassian.com/software/stash) [(post receive hook) plugin](https://confluence.atlassian.com/display/STASH/Using+repository+hooks#Usingrepositoryhooks-Post-receivehooks) that generates [Jira](https://www.atlassian.com/software/jira) version and links issues to the version.
 
