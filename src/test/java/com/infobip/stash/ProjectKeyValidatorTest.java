@@ -19,7 +19,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
+
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.setting.SettingsValidationErrors;
@@ -31,49 +32,58 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectKeyValidatorTest {
 
-	private ProjectKeyValidator projectKeyValidator = new ProjectKeyValidator();
+    private ProjectKeyValidator projectKeyValidator = new ProjectKeyValidator();
 
-	@Mock
-	private Settings settings;
+    @Mock
+    private Settings settings;
 
-	@Mock
-	private SettingsValidationErrors settingsValidationErrors;
+    @Mock
+    private SettingsValidationErrors settingsValidationErrors;
 
-	@Mock
-	private Repository repository;
+    @Mock
+    private Repository repository;
 
-	@Test
-	public void shouldAddErrorsForEmptyProjectKeyString() {
+    @Test
+    public void shouldAddErrorsForEmptyProjectKeyString() {
 
-		givenSetting("jira-project-key", "");
+        givenSetting("jira-project-key", "");
 
-		projectKeyValidator.validate(settings, settingsValidationErrors, repository);
+        whenValidate();
 
-		then(settingsValidationErrors).should().addFieldError("jira-project-key", "Project key must match the JIRA project key format: [A-Z][A-Z0-9_]+");
-	}
+        then(settingsValidationErrors).should()
+                                      .addFieldError("jira-project-key",
+                                                     "Project key must match the JIRA project key format: [A-Z][A-Z0-9_]+");
+    }
 
-	@Test
-	public void shouldAddErrorsForIncorrectProjectKey() {
+    @Test
+    public void shouldAddErrorsForIncorrectProjectKey() {
 
-		givenSetting("jira-project-key", "1A");
+        givenSetting("jira-project-key", "1A");
 
-		projectKeyValidator.validate(settings, settingsValidationErrors, repository);
+        whenValidate();
 
-		then(settingsValidationErrors).should().addFieldError("jira-project-key", "Project key must match the JIRA project key format: [A-Z][A-Z0-9_]+");
-	}
+        then(settingsValidationErrors).should()
+                                      .addFieldError("jira-project-key",
+                                                     "Project key must match the JIRA project key format: [A-Z][A-Z0-9_]+");
+    }
 
-	@Test
-	public void shouldNotAddErrorForCorrectProjectKey() {
+    @Test
+    public void shouldNotAddErrorForCorrectProjectKey() {
 
-		givenSetting("jira-project-key", "TEST");
+        givenSetting("jira-project-key", "TEST");
 
-		projectKeyValidator.validate(settings, settingsValidationErrors, repository);
+        whenValidate();
 
-		then(settingsValidationErrors).should(times(0)).addFieldError(anyString(), anyString());
-	}
+        then(settingsValidationErrors).should(never()).addFieldError(anyString(), anyString());
+    }
 
-	private void givenSetting(String key, String value) {
+    private void givenSetting(String key, String value) {
 
-		given(settings.getString(eq(key), anyString())).willReturn(value);
-	}
+        given(settings.getString(eq(key), anyString())).willReturn(value);
+    }
+
+    private void whenValidate() {
+
+        projectKeyValidator.validate(settings, settingsValidationErrors, repository);
+    }
 }

@@ -24,7 +24,7 @@ import com.infobip.jira.ProjectKey;
 
 class ProjectKeyValidator implements RepositorySettingsValidator {
 
-	static final String JIRA_PROJECT_KEY_SETTINGS_KEY = "jira-project-key";
+	static final String SETTINGS_KEY = "jira-project-key";
 
 	@Override
 	public void validate(@Nonnull Settings settings,
@@ -32,9 +32,9 @@ class ProjectKeyValidator implements RepositorySettingsValidator {
 	                     @Nonnull Repository repository) {
 
 		try {
-			ProjectKey.of(settings.getString(JIRA_PROJECT_KEY_SETTINGS_KEY, ""));
+			ProjectKey.of(settings.getString(SETTINGS_KEY, ""));
 		} catch (IllegalArgumentException e) {
-			settingsValidationErrors.addFieldError(JIRA_PROJECT_KEY_SETTINGS_KEY, e.getMessage());
+			settingsValidationErrors.addFieldError(SETTINGS_KEY, e.getMessage());
 		}
 	}
 }

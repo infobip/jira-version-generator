@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
@@ -33,9 +34,10 @@ import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.RepositorySettingsValidator;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.setting.SettingsValidationErrors;
+import com.google.common.collect.ImmutableList;
 import com.infobip.jira.JiraService;
 import com.infobip.jira.JiraVersionGenerator;
-import com.infobip.jira.MavenReleasePluginVersionFinder;
+import com.infobip.jira.CommitMessageVersionExtractor;
 import com.infobip.jira.ProjectKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,13 +51,14 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 
     private final HistoryService historyService;
     private final JiraService jiraService;
-	private final ProjectKeyValidator projectKeyValidator;
+    private final ImmutableList<RepositorySettingsValidator> settingsValidators;
 
     public JiraVersionGeneratorHook(HistoryService historyService, JiraService jiraService) {
 
         this.historyService = historyService;
         this.jiraService = jiraService;
-        this.projectKeyValidator = new ProjectKeyValidator();
+
+        settingsValidators = ImmutableList.of(new ProjectKeyValidator(), new VersionPatternValidator());
     }
 
     @Override
@@ -74,7 +77,7 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 	    ProjectKey projectKey;
 
 	    try {
-		    projectKey = ProjectKey.of(settings.getString(ProjectKeyValidator.JIRA_PROJECT_KEY_SETTINGS_KEY, ""));
+		    projectKey = ProjectKey.of(settings.getString(ProjectKeyValidator.SETTINGS_KEY, ""));
 	    } catch (IllegalArgumentException e) {
 		    logger.error("failed to generate jira JIRA version and link issues", e);
 		    return;
@@ -99,14 +102,15 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
             return;
         }
 
+
         String repositoryName = repository.getName();
-        MavenReleasePluginVersionFinder mavenReleasePluginVersionFinder = new MavenReleasePluginVersionFinder(
-                repositoryName);
+        CommitMessageVersionExtractor commitMessageVersionExtractor = new CommitMessageVersionExtractor(
+                repositoryName, settings.getString(VersionPatternValidator.SETTINGS_KEY));
 
         JiraVersionGenerator jiraVersionGenerator = new JiraVersionGenerator(jiraService,
                                                                              hookEventChangeset,
                                                                              changesets,
-                                                                             mavenReleasePluginVersionFinder);
+                                                                             commitMessageVersionExtractor);
 
         try {
             jiraVersionGenerator.generateJiraVersionAndLinkIssues(jiraVersionPrefix, projectKey);
@@ -125,7 +129,9 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 	                     @Nonnull SettingsValidationErrors settingsValidationErrors,
 	                     @Nonnull Repository repository) {
 
-		projectKeyValidator.validate(settings, settingsValidationErrors, repository);
+        for (RepositorySettingsValidator settingsValidator : settingsValidators) {
+            settingsValidator.validate(settings, settingsValidationErrors, repository);
+        }
 	}
 
 	private Changeset findHookEventChangeset(String id, Iterator<Changeset> changesets) throws Exception {

@@ -17,7 +17,6 @@ package com.infobip.jira;
 
 import com.google.common.base.Optional;
 
-import javax.annotation.Nonnull;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,26 +26,32 @@ import static java.util.Objects.requireNonNull;
 /**
  * @author lpandzic
  */
-public class MavenReleasePluginVersionFinder {
+public class CommitMessageVersionExtractor {
 
-    private final Pattern mavenReleasePluginVersionPattern;
+    private static final String VERSION_REGEX_CAPTURING_GROUP_NAME = "version";
+    public static final String VERSION_REGEX_CAPTURING_GROUP = "?<" + VERSION_REGEX_CAPTURING_GROUP_NAME + ">";
 
-    public MavenReleasePluginVersionFinder(@Nonnull String repositoryName) {
+    private final Pattern versionPattern;
+
+    public CommitMessageVersionExtractor(String repositoryName,
+                                         String versionPattern) {
 
         requireNonNull(repositoryName);
-        mavenReleasePluginVersionPattern = Pattern.compile("\\[maven-release-plugin\\] prepare release " +
-                                                                   repositoryName +
-                                                                   "-(.*)");
+
+        String pattern = Optional.fromNullable(versionPattern)
+                                 .or("\\[maven-release-plugin\\] prepare release " + repositoryName +
+                                             "-(" + VERSION_REGEX_CAPTURING_GROUP + ".*)");
+        this.versionPattern = Pattern.compile(pattern);
     }
 
-    Optional<String> extractVersionName(@Nonnull String commitMessage) {
+    Optional<String> extractVersionName(String commitMessage) {
 
-        Matcher matcher = mavenReleasePluginVersionPattern.matcher(commitMessage);
+        Matcher matcher = versionPattern.matcher(commitMessage);
 
         if (!matcher.find()) {
             return absent();
         }
 
-        return Optional.of(matcher.group(1));
+        return Optional.of(matcher.group(VERSION_REGEX_CAPTURING_GROUP_NAME));
     }
 }
