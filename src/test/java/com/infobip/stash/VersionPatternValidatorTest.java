@@ -54,6 +54,16 @@ public class VersionPatternValidatorTest {
     }
 
     @Test
+    public void shouldSuccessfullyValidateEmptyString() {
+
+        givenSetting("");
+
+        versionPatternValidator.validate(settings, settingsValidationErrors, repository);
+
+        then(settingsValidationErrors).should(never()).addFieldError(anyString(), anyString());
+    }
+
+    @Test
     public void shouldFailToValidatePatternWithNamedCapturingGroup() {
 
         givenSetting("(.*)");

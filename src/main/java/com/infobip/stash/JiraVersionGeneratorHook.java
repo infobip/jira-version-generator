@@ -105,7 +105,7 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 
         String repositoryName = repository.getName();
         CommitMessageVersionExtractor commitMessageVersionExtractor = new CommitMessageVersionExtractor(
-                repositoryName, settings.getString(VersionPatternValidator.SETTINGS_KEY));
+                repositoryName, settings.getString(VersionPatternValidator.SETTINGS_KEY, ""));
 
         JiraVersionGenerator jiraVersionGenerator = new JiraVersionGenerator(jiraService,
                                                                              hookEventChangeset,

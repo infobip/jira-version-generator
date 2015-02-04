@@ -29,7 +29,6 @@ import static java.util.Objects.requireNonNull;
 public class CommitMessageVersionExtractor {
 
     private static final String VERSION_REGEX_CAPTURING_GROUP_NAME = "version";
-    public static final String VERSION_REGEX_CAPTURING_GROUP = "?<" + VERSION_REGEX_CAPTURING_GROUP_NAME + ">";
 
     private final Pattern versionPattern;
 
@@ -38,10 +37,27 @@ public class CommitMessageVersionExtractor {
 
         requireNonNull(repositoryName);
 
-        String pattern = Optional.fromNullable(versionPattern)
-                                 .or("\\[maven-release-plugin\\] prepare release " + repositoryName +
-                                             "-(" + VERSION_REGEX_CAPTURING_GROUP + ".*)");
-        this.versionPattern = Pattern.compile(pattern);
+        this.versionPattern = getPatternOrDefault(repositoryName, versionPattern);
+    }
+
+    private Pattern getPatternOrDefault(String repositoryName,
+                                        String versionPattern) {
+
+        if (versionPattern == null) {
+            return defaultPattern(repositoryName);
+        }
+
+        if (versionPattern.equals("")) {
+            return defaultPattern(repositoryName);
+        }
+
+        return Pattern.compile(versionPattern);
+    }
+
+    private Pattern defaultPattern(String repositoryName) {
+
+        return Pattern.compile("\\[maven-release-plugin\\] prepare release " + repositoryName +
+                                       "-(?<" + VERSION_REGEX_CAPTURING_GROUP_NAME + ">.*)");
     }
 
     Optional<String> extractVersionName(String commitMessage) {

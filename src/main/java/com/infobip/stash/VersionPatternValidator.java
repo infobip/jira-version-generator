@@ -23,7 +23,6 @@ import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.RepositorySettingsValidator;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.setting.SettingsValidationErrors;
-import com.infobip.jira.CommitMessageVersionExtractor;
 
 class VersionPatternValidator implements RepositorySettingsValidator {
 
@@ -38,10 +37,13 @@ class VersionPatternValidator implements RepositorySettingsValidator {
 
         String versionPattern = settings.getString(SETTINGS_KEY, "");
 
+        if(versionPattern.equals("")) {
+            return;
+        }
+
         if (!versionValidationPattern.matcher(versionPattern).matches()) {
             settingsValidationErrors.addFieldError(SETTINGS_KEY,
-                                                   "version pattern doesn't contain named capturing group "
-                                                           + CommitMessageVersionExtractor.VERSION_REGEX_CAPTURING_GROUP);
+                                                   "Version pattern doesn't contain named capturing group with a name \"version\"");
         }
     }
 }
