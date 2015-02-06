@@ -28,7 +28,8 @@
 2. Project artifactId matches the name of the repository.
 3. User that commits the release commit exists on Jira and has rights to create the version and modify issues on the project.
 
-By default, each commit on the repository is checked against the [Maven Release Plugin](http://maven.apache.org/maven-release/maven-release-plugin/) release commit message pattern: `\[maven-release-plugin\] prepare release repositoryName-(?<version>.*)`. Note that this behavior can be changed by changing the [release commit version pattern](#ReleaseCommitVersionPattern)
+By default, each commit on the repository is checked against the [Maven Release Plugin](http://maven.apache.org/maven-release/maven-release-plugin/) release commit message pattern: `\[maven-release-plugin\] prepare release repositoryName-(?<version>.*)`.
+Note that this behavior can be changed by changing the [release commit version pattern](#ReleaseCommitVersionPattern).
 
 If the commit message matches the pattern, following actions are taken:
 
