@@ -128,8 +128,7 @@ public class JiraVersionGeneratorHookTest {
         givenSetting("jira-project-key", "TEST");
         givenSetting("release-commit-version-pattern", "Release (?<version>.*)");
         givenRepositoryName("test-project");
-        givenChangesets(Changeset.of("latest",
-                                     "Release 1.0.1"),
+        givenChangesets(Changeset.of("latest", "Release 1.0.1"),
                         Changeset.of("older", "Release test-project-1.0.0"));
 
         givenLatestRefChange("latest", "master");

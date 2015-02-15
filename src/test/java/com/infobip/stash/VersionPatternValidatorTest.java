@@ -48,7 +48,7 @@ public class VersionPatternValidatorTest {
 
         givenSetting("Release (?<version>.*) version.");
 
-        versionPatternValidator.validate(settings, settingsValidationErrors, repository);
+        whenValidate();
 
         then(settingsValidationErrors).should(never()).addFieldError(anyString(), anyString());
     }
@@ -58,17 +58,17 @@ public class VersionPatternValidatorTest {
 
         givenSetting("");
 
-        versionPatternValidator.validate(settings, settingsValidationErrors, repository);
+        whenValidate();
 
         then(settingsValidationErrors).should(never()).addFieldError(anyString(), anyString());
     }
 
     @Test
-    public void shouldFailToValidatePatternWithNamedCapturingGroup() {
+    public void shouldFailToValidatePatternWithoutNamedCapturingGroup() {
 
         givenSetting("(.*)");
 
-        versionPatternValidator.validate(settings, settingsValidationErrors, repository);
+        whenValidate();
 
         then(settingsValidationErrors).should().addFieldError(eq(VersionPatternValidator.SETTINGS_KEY), anyString());
     }
@@ -76,5 +76,10 @@ public class VersionPatternValidatorTest {
     private void givenSetting(String setting) {
 
         given(settings.getString(anyString(), anyString())).willReturn(setting);
+    }
+
+    private void whenValidate() {
+
+        versionPatternValidator.validate(settings, settingsValidationErrors, repository);
     }
 }

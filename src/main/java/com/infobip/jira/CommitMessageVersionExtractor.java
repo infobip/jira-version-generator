@@ -16,6 +16,7 @@
 package com.infobip.jira;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,17 +38,13 @@ public class CommitMessageVersionExtractor {
 
         requireNonNull(repositoryName);
 
-        this.versionPattern = getPatternOrDefault(repositoryName, versionPattern);
+        this.versionPattern = getPattern(repositoryName, versionPattern);
     }
 
-    private Pattern getPatternOrDefault(String repositoryName,
-                                        String versionPattern) {
+    private Pattern getPattern(String repositoryName,
+                               String versionPattern) {
 
-        if (versionPattern == null) {
-            return defaultPattern(repositoryName);
-        }
-
-        if (versionPattern.equals("")) {
+        if (Strings.isNullOrEmpty(versionPattern)) {
             return defaultPattern(repositoryName);
         }
 
