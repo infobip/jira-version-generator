@@ -37,7 +37,7 @@ class VersionPatternValidator implements RepositorySettingsValidator {
 
         String versionPattern = settings.getString(SETTINGS_KEY, "");
 
-        if(versionPattern.equals("")) {
+        if(versionPattern.isEmpty()) {
             return;
         }
 
