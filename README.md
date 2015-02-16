@@ -15,6 +15,7 @@
 3. [Usage](#Usage)
 4. [Features](#Features)
     * [Core](#Core)
+    * [Release commit version pattern](#ReleaseCommitVersionPattern)
     * [Version prefix](#VersionPrefix)
 5. [Contributing](#Contributing)
 6. [Useful Atlassian Plugin SDK commands](#UsefulAtlassianPluginSDKCommands)
@@ -27,7 +28,8 @@
 2. Project artifactId matches the name of the repository.
 3. User that commits the release commit exists on Jira and has rights to create the version and modify issues on the project.
 
-Each commit on the repository is checked against the [Maven Release Plugin](http://maven.apache.org/maven-release/maven-release-plugin/) release commit message pattern: `[maven-release-plugin] prepare release ${artifactId}-${version}`
+By default, each commit on the repository is checked against the [Maven Release Plugin](http://maven.apache.org/maven-release/maven-release-plugin/) release commit message pattern: `\[maven-release-plugin\] prepare release repositoryName-(?<version>.*)`.
+Note that this behavior can be changed by changing the [release commit version pattern](#ReleaseCommitVersionPattern).
 
 If the commit message matches the pattern, following actions are taken:
 
@@ -68,10 +70,20 @@ the plugin generates the version 1.0.0 for the project and tags MTP-1, MTP-2 and
 
 ![version.png](https://raw.githubusercontent.com/infobip/jira-version-generator/master/docs/version.png)
 
+### <a name="ReleaseCommitVersionPattern"></a> Release commit version pattern:
+
+Optional configuration setting, default value is `\[maven-release-plugin\] prepare release repositoryName-(?<version>.*)`.
+
+Used to extract release message from a commit. Must contain named capturing group with name "version".
+Default pattern matches the maven release plugin release commit message with the repository name as artifactId.
+
+![release-commit-version-pattern.png](https://raw.githubusercontent.com/infobip/jira-version-generator/master/docs/release-commit-version-pattern.png)
+
 ### <a name="VersionPrefix"></a> Version prefix:
 
-Version prefix defines a static prefix that will be applied to every version created on JIRA.
+Optional configuration setting, default value is `""`.
 
+Version prefix defines a static prefix that will be applied to every version created on JIRA.
 For example, for version prefix defined as
 
 ![version-prefix.png](https://raw.githubusercontent.com/infobip/jira-version-generator/master/docs/version-prefix.png)

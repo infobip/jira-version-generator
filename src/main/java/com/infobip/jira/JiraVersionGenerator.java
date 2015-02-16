@@ -38,18 +38,18 @@ public class JiraVersionGenerator {
     private final JiraService jiraService;
     private final Changeset releaseChangeset;
     private final Iterator<Changeset> changesetIterator;
-    private final MavenReleasePluginVersionFinder mavenReleasePluginVersionFinder;
+    private final CommitMessageVersionExtractor commitMessageVersionExtractor;
 
     public JiraVersionGenerator(@Nonnull JiraService jiraService,
                                 @Nonnull Changeset releaseChangeset,
                                 @Nonnull Iterator<Changeset> changesetIterator,
-                                @Nonnull MavenReleasePluginVersionFinder mavenReleasePluginVersionFinder) {
+                                @Nonnull CommitMessageVersionExtractor commitMessageVersionExtractor) {
 
         this.releaseChangeset = releaseChangeset;
 
         this.jiraService = requireNonNull(jiraService);
         this.changesetIterator = requireNonNull(changesetIterator);
-        this.mavenReleasePluginVersionFinder = requireNonNull(mavenReleasePluginVersionFinder);
+        this.commitMessageVersionExtractor = requireNonNull(commitMessageVersionExtractor);
     }
 
     public void generateJiraVersionAndLinkIssues(@Nonnull String jiraVersionPrefix, @Nonnull ProjectKey projectKey) throws IOException, CredentialsRequiredException, ResponseException {
@@ -59,7 +59,7 @@ public class JiraVersionGenerator {
             return;
         }
 
-        Optional<String> versionName = mavenReleasePluginVersionFinder.extractVersionName(releaseChangeset.getMessage());
+        Optional<String> versionName = commitMessageVersionExtractor.extractVersionName(releaseChangeset.getMessage());
 
         if (!versionName.isPresent()) {
             return;
@@ -131,7 +131,7 @@ public class JiraVersionGenerator {
         while (changesetIterator.hasNext()) {
             Changeset changeset = changesetIterator.next();
 
-            if (mavenReleasePluginVersionFinder.extractVersionName(changeset.getMessage()).isPresent()) {
+            if (commitMessageVersionExtractor.extractVersionName(changeset.getMessage()).isPresent()) {
                 break;
             }
 

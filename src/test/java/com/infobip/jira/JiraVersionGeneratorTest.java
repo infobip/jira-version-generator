@@ -133,8 +133,8 @@ public class JiraVersionGeneratorTest {
 		jiraVersionGenerator = new JiraVersionGenerator(jiraService,
 		                                                changeset,
 		                                                changesetIterator,
-		                                                new MavenReleasePluginVersionFinder(
-				                                                "test-project"));
+		                                                new CommitMessageVersionExtractor(
+				                                                "test-project", null));
 	}
 
 }

@@ -30,9 +30,9 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProjectKeyValidatorTest {
+public class VersionPatternValidatorTest {
 
-    private ProjectKeyValidator projectKeyValidator = new ProjectKeyValidator();
+    private VersionPatternValidator versionPatternValidator = new VersionPatternValidator();
 
     @Mock
     private Settings settings;
@@ -44,46 +44,42 @@ public class ProjectKeyValidatorTest {
     private Repository repository;
 
     @Test
-    public void shouldAddErrorsForEmptyProjectKeyString() {
+    public void shouldSuccessfullyValidatePatternWithNamedCapturingGroup() {
 
-        givenSetting("jira-project-key", "");
-
-        whenValidate();
-
-        then(settingsValidationErrors).should()
-                                      .addFieldError("jira-project-key",
-                                                     "Project key must match the JIRA project key format: [A-Z][A-Z0-9_]+");
-    }
-
-    @Test
-    public void shouldAddErrorsForIncorrectProjectKey() {
-
-        givenSetting("jira-project-key", "1A");
-
-        whenValidate();
-
-        then(settingsValidationErrors).should()
-                                      .addFieldError("jira-project-key",
-                                                     "Project key must match the JIRA project key format: [A-Z][A-Z0-9_]+");
-    }
-
-    @Test
-    public void shouldNotAddErrorForCorrectProjectKey() {
-
-        givenSetting("jira-project-key", "TEST");
+        givenSetting("Release (?<version>.*) version.");
 
         whenValidate();
 
         then(settingsValidationErrors).should(never()).addFieldError(anyString(), anyString());
     }
 
-    private void givenSetting(String key, String value) {
+    @Test
+    public void shouldSuccessfullyValidateEmptyString() {
 
-        given(settings.getString(eq(key), anyString())).willReturn(value);
+        givenSetting("");
+
+        whenValidate();
+
+        then(settingsValidationErrors).should(never()).addFieldError(anyString(), anyString());
+    }
+
+    @Test
+    public void shouldFailToValidatePatternWithoutNamedCapturingGroup() {
+
+        givenSetting("(.*)");
+
+        whenValidate();
+
+        then(settingsValidationErrors).should().addFieldError(eq(VersionPatternValidator.SETTINGS_KEY), anyString());
+    }
+
+    private void givenSetting(String setting) {
+
+        given(settings.getString(anyString(), anyString())).willReturn(setting);
     }
 
     private void whenValidate() {
 
-        projectKeyValidator.validate(settings, settingsValidationErrors, repository);
+        versionPatternValidator.validate(settings, settingsValidationErrors, repository);
     }
 }

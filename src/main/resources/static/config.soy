@@ -21,4 +21,12 @@
         {param errorTexts: $errors ? $errors['jira-version-prefix'] : null /}
         {param isRequired: false /}
     {/call}
+    {call aui.form.textField}
+        {param id: 'release-commit-version-pattern' /}
+        {param value: $config['release-commit-version-pattern'] /}
+        {param labelContent: 'Release commit version pattern' /}
+        {param descriptionText: 'Pattern that matches the release commit message. Must contain named capturing group with a name "version". Default pattern is "\\[maven-release-plugin\\] prepare release repositoryName-(?<version>.*)" where repositoryName is the name of the stash repository.' /}
+        {param errorTexts: $errors ? $errors['release-commit-version-pattern'] : null /}
+        {param isRequired: false /}
+    {/call}
 {/template}

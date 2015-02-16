@@ -122,6 +122,26 @@ public class JiraVersionGeneratorHookTest {
 		thenGetChangesets(times(1), "branch");
 	}
 
+    @Test
+    public void shouldGenerateJiraVersionWithACustomVersionPattern() throws IOException, CredentialsRequiredException, ResponseException {
+
+        givenSetting("jira-project-key", "TEST");
+        givenSetting("release-commit-version-pattern", "Release (?<version>.*)");
+        givenRepositoryName("test-project");
+        givenChangesets(Changeset.of("latest", "Release 1.0.1"),
+                        Changeset.of("older", "Release test-project-1.0.0"));
+
+        givenLatestRefChange("latest", "master");
+        givenOlderRefChange("older", "branch");
+
+        whenPostReceive(latestRefChange);
+        whenPostReceive(olderRefChange);
+
+        thenDoesJiraVersionExist(Version.of("1.0.1", new ProjectKey("TEST"), true, new Date()));
+        thenGetChangesets(times(1), "master");
+        thenGetChangesets(times(1), "branch");
+    }
+
 	@Test
 	public void shouldGenerateJiraVersionAndLinkIssuesWhenHookEventOccursAfterAnotherCommit() throws IOException, CredentialsRequiredException, ResponseException {
 
