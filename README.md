@@ -10,17 +10,26 @@
 
 ## Contents
 
-1. [Preconditions](#Preconditions)
-2. [Installation](#Installation)
-3. [Usage](#Usage)
-4. [Features](#Features)
+1. [News](#News)
+2. [Preconditions](#Preconditions)
+3. [Installation](#Installation)
+4. [Usage](#Usage)
+5. [Features](#Features)
     * [Core](#Core)
     * [Release commit version pattern](#ReleaseCommitVersionPattern)
     * [Version prefix](#VersionPrefix)
-5. [Contributing](#Contributing)
-6. [Useful Atlassian Plugin SDK commands](#UsefulAtlassianPluginSDKCommands)
-7. [Credits](#Credits)
-8. [License](#License)
+6. [Contributing](#Contributing)
+7. [Useful Atlassian Plugin SDK commands](#UsefulAtlassianPluginSDKCommands)
+8. [Credits](#Credits)
+9. [License](#License)
+
+## <a name="News"></a> News
+
+### 1.1
+
+New option - version commit pattern. For details see [here](#ReleaseCommitVersionPattern).
+
+For other changes see the [changelog](https://github.com/infobip/jira-version-generator/blob/master/CHANGELOG.md).
 
 ## <a name="Preconditions"></a> Preconditions:
 
