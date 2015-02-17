@@ -29,7 +29,7 @@
 
 New option - version commit pattern. For details see [here](#ReleaseCommitVersionPattern).
 
-For other changes see the [changelog](https://github.com/infobip/jira-version-generator/blob/master/CHANGELOG.md).
+For previous changes see the [changelog](https://github.com/infobip/jira-version-generator/blob/master/CHANGELOG.md).
 
 ## <a name="Preconditions"></a> Preconditions:
 

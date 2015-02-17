@@ -2,6 +2,6 @@
 
   - added option to specify version commit pattern
 
-## 0.1
+## 1.0
 
   - first release
