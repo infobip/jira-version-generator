@@ -25,7 +25,7 @@
 
 ## <a name="News"></a> News
 
-### 1.1
+### 1.1.0
 
 New option - version commit pattern. For details see [here](#ReleaseCommitVersionPattern).
 
@@ -34,11 +34,10 @@ For previous changes see the [changelog](https://github.com/infobip/jira-version
 ## <a name="Preconditions"></a> Preconditions:
 
 1. Stash has an application link with a Jira instance.
-2. Project artifactId matches the name of the repository.
-3. User that commits the release commit exists on Jira and has rights to create the version and modify issues on the project.
+2. User that commits the release commit exists on Jira and has rights to create the version and modify issues on the project.
 
 By default, each commit on the repository is checked against the [Maven Release Plugin](http://maven.apache.org/maven-release/maven-release-plugin/) release commit message pattern: `\[maven-release-plugin\] prepare release repositoryName-(?<version>.*)`.
-Note that this behavior can be changed by changing the [release commit version pattern](#ReleaseCommitVersionPattern).
+This behavior can be changed by changing the [release commit version pattern](#ReleaseCommitVersionPattern).
 
 If the commit message matches the pattern, following actions are taken:
 
