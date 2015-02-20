@@ -80,7 +80,7 @@ the plugin generates the version 1.0.0 for the project and tags MTP-1, MTP-2 and
 
 ### <a name="ReleaseCommitVersionPattern"></a> Release commit version pattern:
 
-Optional configuration setting, default value is `[maven-release-plugin] prepare release repositoryName-(?<version>.*)`.
+Optional configuration setting, default value is `\[maven-release-plugin\] prepare release repositoryName-(?<version>.*)`.
 
 Used to extract release message from a commit. Must contain named capturing group with name "version".
 Default pattern matches the maven release plugin release commit message with the repository name as artifactId.
