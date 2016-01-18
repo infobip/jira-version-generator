@@ -24,6 +24,9 @@ import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.sal.api.net.Response;
 import com.atlassian.sal.api.net.ResponseException;
 import com.atlassian.sal.api.net.ResponseStatusException;
+import com.atlassian.stash.commit.Commit;
+import com.atlassian.stash.commit.CommitService;
+import com.atlassian.stash.commit.NoSuchCommitException;
 import com.atlassian.stash.content.Changeset;
 import com.atlassian.stash.exception.NoSuchChangesetException;
 import com.atlassian.stash.history.HistoryService;
@@ -49,11 +52,11 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 
     private static final Logger logger = LoggerFactory.getLogger(JiraVersionGeneratorHook.class);
 
-    private final HistoryService historyService;
+    private final CommitService historyService;
     private final JiraService jiraService;
     private final ImmutableList<RepositorySettingsValidator> settingsValidators;
 
-    public JiraVersionGeneratorHook(HistoryService historyService, JiraService jiraService) {
+    public JiraVersionGeneratorHook(CommitService historyService, JiraService jiraService) {
 
         this.historyService = historyService;
         this.jiraService = jiraService;
@@ -85,15 +88,15 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 
 	    Repository repository = repositoryHookContext.getRepository();
 
-        Iterator<Changeset> changesets;
+        Iterator<Commit> changesets;
         try {
             changesets = ChangesetPageCrawler.of(historyService, branchName, repository);
-        } catch (NoSuchChangesetException e) {
+        } catch (NoSuchCommitException e) {
             // branch was deleted
             return;
         }
 
-        Changeset hookEventChangeset;
+        Commit hookEventChangeset;
 
         try {
             hookEventChangeset = findHookEventChangeset(refChange.getToHash(), changesets);
@@ -134,11 +137,11 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
         }
 	}
 
-	private Changeset findHookEventChangeset(String id, Iterator<Changeset> changesets) throws Exception {
+	private Commit findHookEventChangeset(String id, Iterator<Commit> changesets) throws Exception {
 
         while(changesets.hasNext()) {
 
-            Changeset next = changesets.next();
+            Commit next = changesets.next();
 
             if(next.getId().equals(id)) {
                 return next;

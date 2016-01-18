@@ -15,7 +15,7 @@
  */
 package com.infobip.jira;
 
-import com.atlassian.stash.content.Changeset;
+import com.atlassian.stash.commit.Commit;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 
@@ -44,13 +44,13 @@ public class IssueKey {
     private final IssueId issueId;
 
     /**
-     * Generates {@link IssueKey IssueKeys} from {@link Changeset#getMessage()}  changesets message}.
+     * Generates {@link IssueKey IssueKeys} from {@link Commit#getMessage()}  changesets message}.
      *
      * @param changeset containing message with Jira issue key
      *
      * @return all {@link IssueKey IssueKeys} that could be extracted from
      */
-    public static Iterable<IssueKey> of(Changeset changeset) {
+    public static Iterable<IssueKey> of(Commit changeset) {
 
         Matcher matcher = pattern.matcher(changeset.getMessage());
 
@@ -64,13 +64,13 @@ public class IssueKey {
     }
 
     /**
-     * Generates {@link IssueKey} from {@link Changeset changesets} message.
+     * Generates {@link IssueKey} from {@link Commit changesets} message.
      *
      * @param changeset containing message with Jira issue key
      *
      * @return first {@link IssueKey} that could be extracted, else {@link Optional#absent()}
      */
-    public static Optional<IssueKey> from(Changeset changeset) {
+    public static Optional<IssueKey> from(Commit changeset) {
 
         Matcher matcher = pattern.matcher(changeset.getMessage());
 
