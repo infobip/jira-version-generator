@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.sal.api.net.ResponseException;
-import com.atlassian.stash.content.Changeset;
+import com.atlassian.stash.commit.Commit;
 import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +36,13 @@ public class JiraVersionGenerator {
     private static final Logger logger = LoggerFactory.getLogger(JiraVersionGenerator.class);
 
     private final JiraService jiraService;
-    private final Changeset releaseChangeset;
-    private final Iterator<Changeset> changesetIterator;
+    private final Commit releaseChangeset;
+    private final Iterator<Commit> changesetIterator;
     private final CommitMessageVersionExtractor commitMessageVersionExtractor;
 
     public JiraVersionGenerator(@Nonnull JiraService jiraService,
-                                @Nonnull Changeset releaseChangeset,
-                                @Nonnull Iterator<Changeset> changesetIterator,
+                                @Nonnull Commit releaseChangeset,
+                                @Nonnull Iterator<Commit> changesetIterator,
                                 @Nonnull CommitMessageVersionExtractor commitMessageVersionExtractor) {
 
         this.releaseChangeset = releaseChangeset;
@@ -65,7 +65,7 @@ public class JiraVersionGenerator {
             return;
         }
 
-        List<Changeset> versionChangesets = getVersionChangesets();
+        List<Commit> versionChangesets = getVersionChangesets();
 
         Version version = Version.of(jiraVersionPrefix + versionName.get(),
                                      projectKey,
@@ -107,11 +107,11 @@ public class JiraVersionGenerator {
 
     }
 
-    private List<IssueKey> getIssueKeys(List<Changeset> versionChangesets, ProjectKey projectKey) {
+    private List<IssueKey> getIssueKeys(List<Commit> versionChangesets, ProjectKey projectKey) {
 
         List<IssueKey> issueKeys = new ArrayList<>();
 
-        for (Changeset versionChangeset : versionChangesets) {
+        for (Commit versionChangeset : versionChangesets) {
             Iterable<IssueKey> issueKeyIterable = IssueKey.of(versionChangeset);
 
             for (IssueKey issueKey : issueKeyIterable) {
@@ -124,12 +124,12 @@ public class JiraVersionGenerator {
         return issueKeys;
     }
 
-    private List<Changeset> getVersionChangesets() {
+    private List<Commit> getVersionChangesets() {
 
-        List<Changeset> versionChangesets = new ArrayList<>();
+        List<Commit> versionChangesets = new ArrayList<>();
 
         while (changesetIterator.hasNext()) {
-            Changeset changeset = changesetIterator.next();
+            Commit changeset = changesetIterator.next();
 
             if (commitMessageVersionExtractor.extractVersionName(changeset.getMessage()).isPresent()) {
                 break;

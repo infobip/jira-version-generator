@@ -15,8 +15,9 @@
  */
 package com.infobip.jira;
 
+import com.atlassian.stash.commit.MinimalCommit;
 import com.atlassian.stash.content.AttributeMap;
-import com.atlassian.stash.content.MinimalChangeset;
+import com.atlassian.stash.property.PropertyMap;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.user.Person;
 
@@ -31,7 +32,7 @@ import java.util.Set;
 /**
  * @author lpandzic
  */
-class Changeset implements com.atlassian.stash.content.Changeset {
+class Changeset implements com.atlassian.stash.commit.Commit {
 
 	private final String message;
 	private final String id;
@@ -78,7 +79,7 @@ class Changeset implements com.atlassian.stash.content.Changeset {
 	}
 
 	@Override
-	public Collection<MinimalChangeset> getParents() {
+	public Collection<MinimalCommit> getParents() {
 
 		return null;
 	}
@@ -114,5 +115,11 @@ class Changeset implements com.atlassian.stash.content.Changeset {
 	public String getId() {
 
 		return id;
+	}
+
+	@Nonnull
+	@Override
+	public PropertyMap getProperties() {
+		return PropertyMap.EMPTY;
 	}
 }

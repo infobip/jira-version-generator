@@ -17,9 +17,7 @@ package com.infobip.jira;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.times;
 
 import java.io.IOException;
@@ -27,6 +25,9 @@ import java.util.Date;
 
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.stash.commit.Commit;
+import com.atlassian.stash.commit.CommitService;
+import com.atlassian.stash.commit.CommitsRequest;
 import com.atlassian.stash.history.HistoryService;
 import com.atlassian.stash.hook.repository.RepositoryHookContext;
 import com.atlassian.stash.repository.RefChange;
@@ -41,6 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
@@ -52,7 +54,7 @@ public class JiraVersionGeneratorHookTest {
 	private JiraVersionGeneratorHook jiraVersionGeneratorHook;
 
 	@Mock
-	private HistoryService historyService;
+	private CommitService historyService;
 
 	@Mock
 	private JiraService jiraService;
@@ -64,7 +66,7 @@ public class JiraVersionGeneratorHookTest {
 	private Repository repository;
 
 	@Mock
-	private Page<com.atlassian.stash.content.Changeset> changesetPage;
+	private Page<Commit> changesetPage;
 
 	@Mock
 	private RefChange latestRefChange;
@@ -272,12 +274,10 @@ public class JiraVersionGeneratorHookTest {
 		given(latestRefChange.getRefId()).willReturn(branchName);
 	}
 
-	private void givenChangesets(com.atlassian.stash.content.Changeset... changesets) {
+	private void givenChangesets(Commit... changesets) {
 
 		given(changesetPage.getValues()).willReturn(ImmutableList.copyOf(changesets));
-		given(historyService.getChangesets(any(Repository.class),
-		                                   anyString(),
-		                                   anyString(),
+		given(historyService.getCommits(any(CommitsRequest.class),
 		                                   any(PageRequest.class))).willReturn(changesetPage);
 	}
 
@@ -304,9 +304,9 @@ public class JiraVersionGeneratorHookTest {
 
 	private void thenGetChangesets(VerificationMode verificationMode, String branchName) {
 
-		then(historyService).should(verificationMode).getChangesets(eq(repository),
-		                                                            eq(branchName),
-		                                                            anyString(),
+		CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
+
+		then(historyService).should(verificationMode).getCommits(refEq(request),
 		                                                            any(PageRequest.class));
 	}
 

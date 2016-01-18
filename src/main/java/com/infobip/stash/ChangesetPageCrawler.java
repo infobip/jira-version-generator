@@ -15,8 +15,9 @@
  */
 package com.infobip.stash;
 
-import com.atlassian.stash.content.Changeset;
-import com.atlassian.stash.history.HistoryService;
+import com.atlassian.stash.commit.Commit;
+import com.atlassian.stash.commit.CommitService;
+import com.atlassian.stash.commit.CommitsRequest;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.util.Page;
 import com.atlassian.stash.util.PageRequest;
@@ -27,30 +28,34 @@ import java.util.Iterator;
 /**
  * @author lpandzic
  */
-public class ChangesetPageCrawler implements Iterator<Changeset> {
+public class ChangesetPageCrawler implements Iterator<Commit> {
 
-    private final HistoryService historyService;
+    private final CommitService commitService;
     private final String branchName;
     private final Repository repository;
     private boolean hasReachedEnd;
-    private Page<Changeset> currentPage;
-    private Iterator<Changeset> currentPageIterator;
+    private Page<Commit> currentPage;
+    private Iterator<Commit> currentPageIterator;
 
-    public static ChangesetPageCrawler of(HistoryService historyService,
+    public static ChangesetPageCrawler of(CommitService historyService,
                                           String branchName,
                                           Repository repository) {
 
-        Page<Changeset> currentPage = historyService.getChangesets(repository,
-                                                                  branchName,
-                                                                  null,
-                                                                  PageUtils.newRequest(0, 2));
+        CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
+
+        Page<Commit> currentPage = historyService.getCommits(request, PageUtils.newRequest(0, 2));
+
+//        Page<Commit> currentPage = commitService.getChangesets(repository,
+//                                                                  branchName,
+//                                                                  null,
+//                                                                  PageUtils.newRequest(0, 2));
 
         return new ChangesetPageCrawler(historyService, branchName, repository, currentPage);
     }
 
-    private ChangesetPageCrawler(HistoryService historyService, String branchName, Repository repository, Page<Changeset> currentPage) {
+    private ChangesetPageCrawler(CommitService commitService, String branchName, Repository repository, Page<Commit> currentPage) {
 
-        this.historyService = historyService;
+        this.commitService = commitService;
         this.branchName = branchName;
         this.repository = repository;
         hasReachedEnd = false;
@@ -75,7 +80,7 @@ public class ChangesetPageCrawler implements Iterator<Changeset> {
     }
 
     @Override
-    public Changeset next() {
+    public Commit next() {
 
         return currentPageIterator.next();
     }
@@ -99,10 +104,14 @@ public class ChangesetPageCrawler implements Iterator<Changeset> {
             return;
         }
 
-        currentPage = historyService.getChangesets(repository,
-                                                   branchName,
-                                                   null,
-                                                   nextPageRequest);
+        CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
+
+        currentPage = commitService.getCommits(request, nextPageRequest);
+
+//        currentPage = commitService.getChangesets(repository,
+//                                                   branchName,
+//                                                   null,
+//                                                   nextPageRequest);
 
         if (currentPage.getSize() == 0) {
             hasReachedEnd = true;

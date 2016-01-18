@@ -26,6 +26,7 @@ import java.util.Iterator;
 
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.sal.api.net.ResponseException;
+import com.atlassian.stash.commit.Commit;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +45,7 @@ public class JiraVersionGeneratorTest {
 	private JiraService jiraService;
 
 	@Mock
-	private Iterator<com.atlassian.stash.content.Changeset> changesetIterator;
+	private Iterator<Commit> changesetIterator;
 
 	@Test
 	public void shouldCheckIfCorrectJiraVersionExists() throws IOException, CredentialsRequiredException, ResponseException {
