@@ -42,8 +42,8 @@ public class JiraService {
 	public JiraService(ApplicationLinkService applicationLinkService) {
 
 		this.applicationLinkService = applicationLinkService;
-		objectMapper = ObjectMapperFactory.getInstance();
-		objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+		this.objectMapper = ObjectMapperFactory.getInstance();
+		this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	}
 
 	Optional<SerializedVersion> findVersion(ProjectKey projectKey, String name) {
