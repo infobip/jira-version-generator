@@ -36,6 +36,7 @@ import org.mockito.verification.VerificationMode;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
@@ -108,7 +109,7 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(latestRefChange);
         whenPostReceive(olderRefChange);
 
-        thenShouldFindVersion(new ProjectKey("TEST"), "1.0.1");
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.1");
     }
 
     @Test
@@ -129,7 +130,7 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(latestRefChange);
         whenPostReceive(olderRefChange);
 
-        thenShouldFindVersion(new ProjectKey("TEST"), "infobip-test-1.0.1");
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "infobip-test-1.0.1");
         thenGetChangesets(times(1), "master");
         thenGetChangesets(times(1), "branch");
     }
@@ -151,7 +152,7 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(latestRefChange);
         whenPostReceive(olderRefChange);
 
-        thenShouldFindVersion(new ProjectKey("TEST"), "1.0.1");
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.1");
         thenGetChangesets(times(1), "master");
         thenGetChangesets(times(1), "branch");
     }
@@ -174,7 +175,7 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(olderRefChange);
         whenPostReceive(latestRefChange);
 
-        thenShouldFindVersion(new ProjectKey("TEST"), "1.0.0");
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.0");
         thenGetChangesets(times(2), "master");
     }
 
@@ -195,7 +196,7 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(latestRefChange);
         whenPostReceive(olderRefChange);
 
-        thenShouldFindVersion(new ProjectKey("TEST"), "1.0.0");
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.0");
         thenGetChangesets(times(1), "master");
         thenGetChangesets(times(1), "branch");
     }
@@ -216,9 +217,8 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(latestRefChange);
 
         thenShouldCreateJiraVersion("1.0.0", "TEST");
-        thenShouldAddVersionToIssues("1.0.0", new ProjectKey("TEST"),
-                new IssueKey(new ProjectKey("TEST"), new IssueId("1")),
-                new IssueKey(new ProjectKey("TEST"), new IssueId("2")));
+
+        then(jiraService).should().addVersionToIssues("1.0.0", new ProjectKey("TEST"), Arrays.asList(new IssueKey(new ProjectKey("TEST"), new IssueId("1")), new IssueKey(new ProjectKey("TEST"), new IssueId("2"))));
     }
 
     @Test
@@ -240,9 +240,8 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(latestRefChange);
 
         thenShouldCreateJiraVersion("1.0.0", "TEST");
-        thenShouldAddVersionToIssues("1.0.0", new ProjectKey("TEST"),
-                new IssueKey(new ProjectKey("TEST"), new IssueId("1")),
-                new IssueKey(new ProjectKey("TEST"), new IssueId("2")));
+
+        then(jiraService).should().addVersionToIssues("1.0.0", new ProjectKey("TEST"), Arrays.asList(new IssueKey(new ProjectKey("TEST"), new IssueId("1")), new IssueKey(new ProjectKey("TEST"), new IssueId("2"))));
     }
 
     @Test
@@ -262,10 +261,8 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(latestRefChange);
 
         thenShouldCreateJiraVersion("1.0.0", "TEST");
-        thenShouldAddVersionToIssues("1.0.0", new ProjectKey("TEST"),
-                new IssueKey(new ProjectKey("TEST"), new IssueId("1")),
-                new IssueKey(new ProjectKey("TEST"), new IssueId("2")),
-                new IssueKey(new ProjectKey("TEST"), new IssueId("3")));
+
+        then(jiraService).should().addVersionToIssues("1.0.0", new ProjectKey("TEST"), Arrays.asList(new IssueKey(new ProjectKey("TEST"), new IssueId("1")), new IssueKey(new ProjectKey("TEST"), new IssueId("2")), new IssueKey(new ProjectKey("TEST"), new IssueId("3"))));
     }
 
     private void givenCreatedVersion(String id, String name, String project) {
@@ -313,13 +310,6 @@ public class JiraVersionGeneratorHookTest {
         jiraVersionGeneratorHook.postReceive(repositoryHookContext, ImmutableList.of(refChange));
     }
 
-    private void thenShouldAddVersionToIssues(String versionName,
-                                              ProjectKey projectKey,
-                                              IssueKey... issueKeys) throws CredentialsRequiredException, ResponseException, JsonProcessingException {
-
-        then(jiraService).should().addVersionToIssues(versionName, projectKey, ImmutableList.copyOf(issueKeys));
-    }
-
     private void thenShouldCreateJiraVersion(String name, String project) throws CredentialsRequiredException, ResponseException, JsonProcessingException {
 
         then(jiraService).should().createJiraVersion(new SerializedVersion(null, name, project, null, false));
@@ -333,7 +323,4 @@ public class JiraVersionGeneratorHookTest {
                 any(PageRequest.class));
     }
 
-    private void thenShouldFindVersion(ProjectKey projectKey, String name) {
-        then(jiraService).should().findVersion(projectKey, name);
-    }
 }
