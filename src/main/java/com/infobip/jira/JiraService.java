@@ -83,7 +83,7 @@ public class JiraService {
 
 	private List<SerializedVersion> getVersions(ProjectKey projectKey) {
 
-		String url = getUrl("/rest/api/2/project/", projectKey.getValue(), "/versions");
+		String url = String.format("/rest/api/2/project/%s/versions", projectKey.getValue());
 		String versionsJson = executeJsonHttpRequest(MethodType.GET, url);
 
 		try {
@@ -128,11 +128,6 @@ public class JiraService {
 		} catch (CredentialsRequiredException | ResponseException e) {
 			throw new JiraServiceException("Failed to create request " + methodType + " " + url, e);
 		}
-	}
-
-	private String getUrl(String... parts) {
-
-		return Joiner.on("").join(parts);
 	}
 
 	private String toJson(Object value) {
