@@ -21,7 +21,6 @@ import com.atlassian.bitbucket.property.PropertyMap;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.user.Person;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -84,7 +83,6 @@ class Changeset implements Commit {
 		return id;
 	}
 
-	@Nonnull
 	@Override
 	public PropertyMap getProperties() {
 		return PropertyMap.EMPTY;

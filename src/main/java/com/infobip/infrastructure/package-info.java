@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package com.infobip.infrastructure;
+
+import javax.annotation.ParametersAreNonnullByDefault;
