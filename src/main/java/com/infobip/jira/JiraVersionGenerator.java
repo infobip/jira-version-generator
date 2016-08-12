@@ -48,21 +48,21 @@ public class JiraVersionGenerator {
         this.clock = clock;
     }
 
-    public void generateJiraVersionAndLinkIssues(String jiraVersionPrefix,
-                                                 ProjectKey projectKey) {
+    public void generate(String jiraVersionPrefix,
+                         ProjectKey projectKey) {
 
         if (!changesetIterator.hasNext()) {
             return;
         }
 
         commitMessageVersionExtractor.extractVersionName(releaseChangeset.getMessage())
-                .ifPresent(versionName -> generateJiraVersionAndLinkIssues(jiraVersionPrefix, projectKey, versionName));
+                .ifPresent(versionName -> generate(jiraVersionPrefix, projectKey, versionName));
 
     }
 
-    private void generateJiraVersionAndLinkIssues(String jiraVersionPrefix,
-                                                  ProjectKey projectKey,
-                                                  String versionName) {
+    private void generate(String jiraVersionPrefix,
+                          ProjectKey projectKey,
+                          String versionName) {
 
         String prefixedVersionName = jiraVersionPrefix + versionName;
         List<Commit> versionCommits = getAllCommitsNewerThanPreviousRelease();

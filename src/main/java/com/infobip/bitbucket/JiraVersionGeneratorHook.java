@@ -97,7 +97,7 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
                 ClockFactory.getInstance());
 
         try {
-            jiraVersionGenerator.generateJiraVersionAndLinkIssues(jiraVersionPrefix, projectKey);
+            jiraVersionGenerator.generate(jiraVersionPrefix, projectKey);
         } catch (JiraServiceException e) {
             logger.error("Failed to generate Jira version for project " + projectKey, e);
         }

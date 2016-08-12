@@ -27,7 +27,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Iterator;
 import java.util.Optional;
@@ -70,7 +69,7 @@ public class JiraVersionGeneratorTest {
         given(jiraService.findVersion(any(), any())).willReturn(Optional.empty());
         given(jiraService.createJiraVersion(any())).willReturn(new SerializedVersion(null, "1.0.1", "TEST", null, null));
 
-        jiraVersionGenerator.generateJiraVersionAndLinkIssues("", new ProjectKey("TEST"));
+        jiraVersionGenerator.generate("", new ProjectKey("TEST"));
 
         then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.1");
     }
@@ -88,7 +87,7 @@ public class JiraVersionGeneratorTest {
         given(jiraService.findVersion(any(), any())).willReturn(Optional.empty());
         given(jiraService.createJiraVersion(any())).willReturn(new SerializedVersion("1", "1.0.1", "TEST", null, null));
 
-        jiraVersionGenerator.generateJiraVersionAndLinkIssues("", new ProjectKey("TEST"));
+        jiraVersionGenerator.generate("", new ProjectKey("TEST"));
 
         then(jiraService).should().createJiraVersion(new SerializedVersion(null, "1.0.1", "TEST", null, false));
     }
@@ -106,7 +105,7 @@ public class JiraVersionGeneratorTest {
         given(jiraService.findVersion(any(), any())).willReturn(Optional.empty());
         given(jiraService.createJiraVersion(any())).willReturn(new SerializedVersion(null, "1.0.1", "TEST", null, null));
 
-        jiraVersionGenerator.generateJiraVersionAndLinkIssues("", new ProjectKey("TEST"));
+        jiraVersionGenerator.generate("", new ProjectKey("TEST"));
 
         then(jiraService).should().addVersionToIssues("1.0.1",
                 new ProjectKey("TEST"),
@@ -125,7 +124,7 @@ public class JiraVersionGeneratorTest {
         given(jiraService.findVersion(any(), any())).willReturn(Optional.empty());
         given(jiraService.createJiraVersion(any())).willReturn(new SerializedVersion(null, "1.0.1", "TEST", null, null));
 
-        jiraVersionGenerator.generateJiraVersionAndLinkIssues("", new ProjectKey("TEST"));
+        jiraVersionGenerator.generate("", new ProjectKey("TEST"));
 
         then(jiraService).should().releaseVersion(new SerializedVersion(null, "1.0.1", "TEST", null, null), LocalDate.of(2016, 1, 1));
     }
