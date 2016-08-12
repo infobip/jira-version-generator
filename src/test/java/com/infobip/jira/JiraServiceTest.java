@@ -66,22 +66,18 @@ public class JiraServiceTest {
 
         givenReturnedJson("[\n" +
                 "    {\n" +
-                "        \"self\": \"https://jira.infobip.com/rest/api/2/version/11780\",\n" +
                 "        \"id\": \"11780\",\n" +
-                "        \"description\": \"first release\",\n" +
                 "        \"name\": \"2.0.0\",\n" +
-                "        \"archived\": false,\n" +
                 "        \"released\": true,\n" +
-                "        \"releaseDate\": \"2014-03-03\",\n" +
-                "        \"userReleaseDate\": \"03/Mar/14\",\n" +
-                "        \"projectId\": 10901\n" +
+                "        \"releaseDate\": \"2014-03-03\"\n" +
                 "    }\n" +
                 "]");
 
-        Optional<SerializedVersion> actual = jiraService.findVersion(new ProjectKey("TEST"), "2.0.0");
+        SerializedVersion actual = jiraService.findVersion(new ProjectKey("TEST"), "2.0.0").orElse(null);
 
-        then(actual).isPresent()
-                .contains(new SerializedVersion("11780", "2.0.0", null, LocalDate.of(2014, 3, 3), true));
+        String project = null;
+        boolean released = true;
+        then(actual).isEqualTo(new SerializedVersion("11780", "2.0.0", project, LocalDate.of(2014, 3, 3), released));
     }
 
     @Test
