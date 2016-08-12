@@ -13,31 +13,15 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
  */
-package com.infobip.jira;
+package com.infobip.infrastructure;
 
-import lombok.Value;
+import java.time.Clock;
 
-import java.util.Objects;
+public class ClockFactory {
 
-/**
- * JIRA issue key. For example ABC-123.
- *
- */
-@Value
-class IssueKey {
+    private static final Clock DEFAULT_CLOCK = Clock.systemDefaultZone();
 
-    private final ProjectKey projectKey;
-    private final IssueId issueId;
-
-    public IssueKey(ProjectKey projectKey, IssueId issueId) {
-
-        this.projectKey = Objects.requireNonNull(projectKey);
-        this.issueId = Objects.requireNonNull(issueId);
-    }
-
-    @Override
-    public String toString() {
-
-        return projectKey.getValue() + "-" + issueId.getValue();
+    public static Clock getInstance() {
+        return DEFAULT_CLOCK;
     }
 }

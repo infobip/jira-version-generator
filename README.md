@@ -4,14 +4,12 @@
 [![Coverage Status](https://coveralls.io/repos/infobip/jira-version-generator/badge.png?branch=master)](https://coveralls.io/r/infobip/jira-version-generator?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator)
 
-[Stash](https://www.atlassian.com/software/stash) [(post receive hook) plugin](https://confluence.atlassian.com/display/STASH/Using+repository+hooks#Usingrepositoryhooks-Post-receivehooks) that generates [Jira](https://www.atlassian.com/software/jira) version and links issues to the version.
-
-**Note that this plugin depends on Java version 7.**
+[Bitbucket Server](https://www.atlassian.com/software/bitbucket/server) [(post receive hook) plugin](https://confluence.atlassian.com/display/STASH/Using+repository+hooks#Usingrepositoryhooks-Post-receivehooks) that generates [Jira](https://www.atlassian.com/software/jira) version and links issues to the version.
 
 ## Contents
 
 1. [News](#News)
-2. [Preconditions](#Preconditions)
+2. [Requirements](#Requirements)
 3. [Installation](#Installation)
 4. [Usage](#Usage)
 5. [Features](#Features)
@@ -25,15 +23,15 @@
 
 ## <a name="News"></a> News
 
-### 1.1.0
+### 2.0.0
 
-New option - version commit pattern. For details see [here](#ReleaseCommitVersionPattern).
+Upgrade to Java 8 and Bitbucket Server.
 
 For previous changes see the [changelog](https://github.com/infobip/jira-version-generator/blob/master/CHANGELOG.md).
 
-## <a name="Preconditions"></a> Preconditions:
+## <a name="Requirements"></a> Requirements:
 
-1. Stash has an application link with a Jira instance.
+1. Bitbucket Server has an application link with a Jira instance.
 2. User that commits the release commit exists on Jira and has rights to create the version and modify issues on the project.
 
 By default, each commit on the repository is checked against the [Maven Release Plugin](http://maven.apache.org/maven-release/maven-release-plugin/) release commit message pattern: `\[maven-release-plugin\] prepare release repositoryName-(?<version>.*)`.
@@ -50,7 +48,7 @@ If the version already exists on Jira, the version will not be created and issue
 
 ## <a name="Installation"></a> Installation:
 
-Simply download latest jar from the Maven Central [here](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator) and install it on your Stash instance.
+Simply download latest jar from the Maven Central [here](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator) and install it on your Bitbucket Server instance.
 
 ## <a name="Usage"></a> Usage:
 
@@ -108,12 +106,9 @@ Pull requests are welcome!
 
 ## <a name="UsefulAtlassianPluginSDKCommands"></a>Useful Atlassian Plugin SDK commands (for development)
 
-- `atlas-clean` - similar to mvn clean, removes local instances of products (Stash, Jira)
-- `atlas-debug` - runs the project product (Stash) in debug mode, [guide for remote debugging](https://developer.atlassian.com/display/DOCS/Creating+a+Remote+Debug+Target)
-- `atlas-run-standalone --product jira -v 6.1.3` - runs local Jira instance of version 6.1.3
-- `atlas-cli` - interactive command line interface - passing pi reinstalls the plugin without restarting the stash server
-
-Note: **JDK 1.7** is required for local development (JDK 8 is *not supported yet*).
+- `atlas-clean` - similar to mvn clean, removes local instances of products (Bitbucket Server, Jira)
+- `atlas-debug` - runs the project product (Bitbucket Server) in debug mode, [guide for remote debugging](https://developer.atlassian.com/display/DOCS/Creating+a+Remote+Debug+Target)
+- `atlas-run-standalone --product jira -v 6.4` - runs local Jira instance of version 6.4
 
 ## <a name="Credits"></a> Credits
 

@@ -1,5 +1,5 @@
 /**
- *# Copyright 2014 Infobip
+ *# Copyright 2016 Infobip
  #
  # Licensed under the Apache License, Version 2.0 (the "License");
  # you may not use this file except in compliance with the License.
@@ -13,22 +13,19 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
  */
-package com.infobip.stash;
+package com.infobip.bitbucket;
 
-import com.atlassian.stash.commit.Commit;
-import com.atlassian.stash.commit.CommitService;
-import com.atlassian.stash.commit.CommitsRequest;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.util.Page;
-import com.atlassian.stash.util.PageRequest;
-import com.atlassian.stash.util.PageUtils;
+import com.atlassian.bitbucket.commit.Commit;
+import com.atlassian.bitbucket.commit.CommitService;
+import com.atlassian.bitbucket.commit.CommitsRequest;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.util.Page;
+import com.atlassian.bitbucket.util.PageRequest;
+import com.atlassian.bitbucket.util.PageUtils;
 
 import java.util.Iterator;
 
-/**
- * @author lpandzic
- */
-public class ChangesetPageCrawler implements Iterator<Commit> {
+class ChangesetPageCrawler implements Iterator<Commit> {
 
     private final CommitService commitService;
     private final String branchName;
@@ -44,11 +41,6 @@ public class ChangesetPageCrawler implements Iterator<Commit> {
         CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
 
         Page<Commit> currentPage = historyService.getCommits(request, PageUtils.newRequest(0, 2));
-
-//        Page<Commit> currentPage = commitService.getChangesets(repository,
-//                                                                  branchName,
-//                                                                  null,
-//                                                                  PageUtils.newRequest(0, 2));
 
         return new ChangesetPageCrawler(historyService, branchName, repository, currentPage);
     }
@@ -91,7 +83,7 @@ public class ChangesetPageCrawler implements Iterator<Commit> {
         throw new UnsupportedOperationException();
     }
 
-    void getNextPageIterator() {
+    private void getNextPageIterator() {
 
         if (hasReachedEnd) {
             return;
@@ -107,11 +99,6 @@ public class ChangesetPageCrawler implements Iterator<Commit> {
         CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
 
         currentPage = commitService.getCommits(request, nextPageRequest);
-
-//        currentPage = commitService.getChangesets(repository,
-//                                                   branchName,
-//                                                   null,
-//                                                   nextPageRequest);
 
         if (currentPage.getSize() == 0) {
             hasReachedEnd = true;

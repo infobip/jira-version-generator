@@ -1,5 +1,5 @@
 /**
- *# Copyright 2014 Infobip
+ *# Copyright 2016 Infobip
  #
  # Licensed under the Apache License, Version 2.0 (the "License");
  # you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package com.infobip.jira;
 
-import com.google.common.base.Optional;
 import org.junit.Test;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
@@ -48,7 +49,7 @@ public class CommitMessageVersionExtractorTest {
 
         whenExtractVersion("Release 1.0.0");
 
-        then(version).isEqualTo(Optional.of("1.0.0"));
+        then(version).contains("1.0.0");
     }
 
     @Test
@@ -59,7 +60,7 @@ public class CommitMessageVersionExtractorTest {
 
         whenExtractVersion("Non release commit message");
 
-        then(version).isEqualTo(Optional.absent());
+        then(version).isEmpty();
     }
 
     private void givenRepositoryName(String repositoryName) {

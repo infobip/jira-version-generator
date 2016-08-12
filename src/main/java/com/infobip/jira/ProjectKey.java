@@ -1,5 +1,5 @@
 /**
- *# Copyright 2014 Infobip
+ *# Copyright 2016 Infobip
  #
  # Licensed under the Apache License, Version 2.0 (the "License");
  # you may not use this file except in compliance with the License.
@@ -15,17 +15,15 @@
  */
 package com.infobip.jira;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
+import lombok.Value;
+
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
  *  JIRA project key. For example in JIRA issue key "ABC-123" "ABC" represents the project key.
- *
-* @author lpandzic
 */
-@Immutable
+@Value
 public class ProjectKey {
 
 	/**
@@ -35,50 +33,13 @@ public class ProjectKey {
 	 */
 	private static final Pattern projectKeyPattern = Pattern.compile("[A-Z][A-Z0-9_]+");
 
-    final String value;
+    private final String value;
 
-	public static ProjectKey of(String value) {
-
+    public ProjectKey(String value) {
 		if(!projectKeyPattern.matcher(value).matches()) {
 			throw new IllegalArgumentException("Project key must match the JIRA project key format: [A-Z][A-Z0-9_]+");
 		}
 
-		return new ProjectKey(value);
-	}
-
-    ProjectKey(@Nonnull String value) {
-
         this.value = Objects.requireNonNull(value);
-    }
-
-    @Override
-    public String toString() {
-
-        return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final ProjectKey that = (ProjectKey) o;
-
-        if (!value.equals(that.value)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-
-        return value.hashCode();
     }
 }

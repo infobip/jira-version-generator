@@ -1,5 +1,5 @@
 /**
- *# Copyright 2014 Infobip
+ *# Copyright 2016 Infobip
  #
  # Licensed under the Apache License, Version 2.0 (the "License");
  # you may not use this file except in compliance with the License.
@@ -15,18 +15,14 @@
  */
 package com.infobip.jira;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Optional.absent;
 import static java.util.Objects.requireNonNull;
 
-/**
- * @author lpandzic
- */
 public class CommitMessageVersionExtractor {
 
     private static final String VERSION_REGEX_CAPTURING_GROUP_NAME = "version";
@@ -62,7 +58,7 @@ public class CommitMessageVersionExtractor {
         Matcher matcher = versionPattern.matcher(commitMessage);
 
         if (!matcher.find()) {
-            return absent();
+            return Optional.empty();
         }
 
         return Optional.of(matcher.group(VERSION_REGEX_CAPTURING_GROUP_NAME));

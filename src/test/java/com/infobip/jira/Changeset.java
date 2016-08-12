@@ -1,5 +1,5 @@
 /**
- *# Copyright 2014 Infobip
+ *# Copyright 2016 Infobip
  #
  # Licensed under the Apache License, Version 2.0 (the "License");
  # you may not use this file except in compliance with the License.
@@ -15,49 +15,30 @@
  */
 package com.infobip.jira;
 
-import com.atlassian.stash.commit.MinimalCommit;
-import com.atlassian.stash.content.AttributeMap;
-import com.atlassian.stash.property.PropertyMap;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.user.Person;
+import com.atlassian.bitbucket.commit.Commit;
+import com.atlassian.bitbucket.commit.MinimalCommit;
+import com.atlassian.bitbucket.property.PropertyMap;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.user.Person;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Set;
 
-/**
- * @author lpandzic
- */
-class Changeset implements com.atlassian.stash.commit.Commit {
+class Changeset implements Commit {
 
 	private final String message;
 	private final String id;
 	private final Date authorTimestamp;
 
-	public static Changeset of(String message) {
-
-		return new Changeset(message, null, null);
-	}
-
-	public static Changeset of(String id, String message) {
-
-		return new Changeset(message, id, null);
-	}
-
-	public static Changeset of(String id, String message, String date) throws ParseException {
-
-		return new Changeset(message, id, new SimpleDateFormat("yyyy-MM-dd").parse(date));
-	}
-
-	Changeset(String message, String id, Date date) {
+	Changeset(String id, String message, LocalDate authorTimestamp) {
 
 		this.message = message;
 		this.id = id;
-		this.authorTimestamp = date;
+		this.authorTimestamp = Date.from(authorTimestamp.atStartOfDay().toInstant(ZoneOffset.UTC));
 	}
 
 	@Override
@@ -89,20 +70,6 @@ class Changeset implements com.atlassian.stash.commit.Commit {
 	public Repository getRepository() {
 
 		return null;
-	}
-
-	@Nonnull
-	@Override
-	public AttributeMap getAttributes() {
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Nonnull
-	@Override
-	public Set<String> getAttributeValues(String s) {
-
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

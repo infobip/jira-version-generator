@@ -1,5 +1,5 @@
 /**
- *# Copyright 2014 Infobip
+ *# Copyright 2016 Infobip
  #
  # Licensed under the Apache License, Version 2.0 (the "License");
  # you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
  */
-package com.infobip.stash;
+package com.infobip.bitbucket;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -21,9 +21,10 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.setting.SettingsValidationErrors;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.setting.SettingsValidationErrors;
+import com.infobip.bitbucket.VersionPatternValidator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
