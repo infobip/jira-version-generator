@@ -25,7 +25,7 @@ public class CommitMessageVersionExtractorTest {
 
     private CommitMessageVersionExtractor commitMessageVersionExtractor;
 
-    private Optional<String> version;
+    private String version;
 
     private String repositoryName;
     private String versionPattern;
@@ -38,7 +38,7 @@ public class CommitMessageVersionExtractorTest {
 
         whenExtractVersion("[maven-release-plugin] prepare release test-project-1.0.0");
 
-        then(version).isEqualTo(Optional.of("1.0.0"));
+        then(version).isEqualTo("1.0.0");
     }
 
     @Test
@@ -49,7 +49,7 @@ public class CommitMessageVersionExtractorTest {
 
         whenExtractVersion("Release 1.0.0");
 
-        then(version).contains("1.0.0");
+        then(version).isEqualTo("1.0.0");
     }
 
     @Test
@@ -60,7 +60,7 @@ public class CommitMessageVersionExtractorTest {
 
         whenExtractVersion("Non release commit message");
 
-        then(version).isEmpty();
+        then(version).isNull();
     }
 
     private void givenRepositoryName(String repositoryName) {
@@ -81,6 +81,6 @@ public class CommitMessageVersionExtractorTest {
     private void whenExtractVersion(String commitMessage) {
 
         commitMessageVersionExtractor = new CommitMessageVersionExtractor(repositoryName, versionPattern);
-        version = commitMessageVersionExtractor.extractVersionName(commitMessage);
+        version = commitMessageVersionExtractor.extractVersionName(commitMessage).orElse(null);
     }
 }
