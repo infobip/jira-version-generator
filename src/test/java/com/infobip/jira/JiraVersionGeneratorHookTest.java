@@ -23,7 +23,6 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.util.Page;
 import com.atlassian.bitbucket.util.PageRequest;
 import com.atlassian.sal.api.net.ResponseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
 import com.infobip.bitbucket.JiraVersionGeneratorHook;
 import org.junit.Before;
@@ -216,7 +215,7 @@ public class JiraVersionGeneratorHookTest {
 
         whenPostReceive(latestRefChange);
 
-        thenShouldCreateJiraVersion("1.0.0", "TEST");
+        then(jiraService).should().createJiraVersion(unreleasedSerializedVersion("1.0.0", "TEST"));
 
         then(jiraService).should().addVersionToIssues("1.0.0", new ProjectKey("TEST"), Arrays.asList(new IssueKey(new ProjectKey("TEST"), new IssueId("1")), new IssueKey(new ProjectKey("TEST"), new IssueId("2"))));
     }
@@ -239,7 +238,7 @@ public class JiraVersionGeneratorHookTest {
 
         whenPostReceive(latestRefChange);
 
-        thenShouldCreateJiraVersion("1.0.0", "TEST");
+        then(jiraService).should().createJiraVersion(unreleasedSerializedVersion("1.0.0", "TEST"));
 
         then(jiraService).should().addVersionToIssues("1.0.0", new ProjectKey("TEST"), Arrays.asList(new IssueKey(new ProjectKey("TEST"), new IssueId("1")), new IssueKey(new ProjectKey("TEST"), new IssueId("2"))));
     }
@@ -260,7 +259,7 @@ public class JiraVersionGeneratorHookTest {
 
         whenPostReceive(latestRefChange);
 
-        thenShouldCreateJiraVersion("1.0.0", "TEST");
+        then(jiraService).should().createJiraVersion(unreleasedSerializedVersion("1.0.0", "TEST"));
 
         then(jiraService).should().addVersionToIssues("1.0.0", new ProjectKey("TEST"), Arrays.asList(new IssueKey(new ProjectKey("TEST"), new IssueId("1")), new IssueKey(new ProjectKey("TEST"), new IssueId("2")), new IssueKey(new ProjectKey("TEST"), new IssueId("3"))));
     }
@@ -310,9 +309,9 @@ public class JiraVersionGeneratorHookTest {
         jiraVersionGeneratorHook.postReceive(repositoryHookContext, ImmutableList.of(refChange));
     }
 
-    private void thenShouldCreateJiraVersion(String name, String project) throws CredentialsRequiredException, ResponseException, JsonProcessingException {
+    private SerializedVersion unreleasedSerializedVersion(String name, String Project) {
 
-        then(jiraService).should().createJiraVersion(new SerializedVersion(null, name, project, null, false));
+        return new SerializedVersion(null, name, Project, null, false);
     }
 
     private void thenGetChangesets(VerificationMode verificationMode, String branchName) {
