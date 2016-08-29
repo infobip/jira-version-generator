@@ -46,7 +46,7 @@ public class JiraVersionGeneratorTest {
     private JiraService jiraService;
 
     @Mock
-    private Iterator<Commit> changesetIterator;
+    private Iterator<Commit> commitIterator;
 
     @Mock
     private Clock clock;
@@ -59,13 +59,13 @@ public class JiraVersionGeneratorTest {
     @Test
     public void shouldCheckIfCorrectJiraVersionExists() throws IOException, CredentialsRequiredException, ResponseException {
 
-        givenJiraVersionGeneratorWithReleaseCommit(new Changeset(
+        givenJiraVersionGeneratorWithReleaseCommit(new SimpleCommit(
                 null, "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016));
-        given(changesetIterator.hasNext()).willReturn(true, true, true, false);
-        given(changesetIterator.next())
-                .willReturn(new Changeset(null, "Merge pull request #276 in TEST/test-project from TEST-1", START_OF_2016),
-                        new Changeset(null, "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
-                        new Changeset(null, "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
+        given(commitIterator.hasNext()).willReturn(true, true, true, false);
+        given(commitIterator.next())
+                .willReturn(new SimpleCommit(null, "Merge pull request #276 in TEST/test-project from TEST-1", START_OF_2016),
+                        new SimpleCommit(null, "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
+                        new SimpleCommit(null, "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
         given(jiraService.findVersion(any(), any())).willReturn(Optional.empty());
         given(jiraService.createJiraVersion(any())).willReturn(new SerializedVersion(null, "1.0.1", "TEST", null, null));
 
@@ -77,13 +77,13 @@ public class JiraVersionGeneratorTest {
     @Test
     public void shouldCreateJiraVersion() throws IOException, CredentialsRequiredException, ResponseException {
 
-        givenJiraVersionGeneratorWithReleaseCommit(new Changeset(
+        givenJiraVersionGeneratorWithReleaseCommit(new SimpleCommit(
                 null, "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016));
-        given(changesetIterator.hasNext()).willReturn(true, true, true, false);
-        given(changesetIterator.next())
-                .willReturn(new Changeset(null, "Merge pull request #276 in TEST/test-project from TEST-1", START_OF_2016),
-                        new Changeset(null, "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
-                        new Changeset(null, "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
+        given(commitIterator.hasNext()).willReturn(true, true, true, false);
+        given(commitIterator.next())
+                .willReturn(new SimpleCommit(null, "Merge pull request #276 in TEST/test-project from TEST-1", START_OF_2016),
+                        new SimpleCommit(null, "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
+                        new SimpleCommit(null, "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
         given(jiraService.findVersion(any(), any())).willReturn(Optional.empty());
         given(jiraService.createJiraVersion(any())).willReturn(new SerializedVersion("1", "1.0.1", "TEST", null, null));
 
@@ -95,13 +95,13 @@ public class JiraVersionGeneratorTest {
     @Test
     public void shouldLinkIssuesToVersion() throws IOException, CredentialsRequiredException, ResponseException {
 
-        givenJiraVersionGeneratorWithReleaseCommit(new Changeset(
+        givenJiraVersionGeneratorWithReleaseCommit(new SimpleCommit(
                 "", "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016));
-        given(changesetIterator.hasNext()).willReturn(true, true, true, false);
-        given(changesetIterator.next())
-                .willReturn(new Changeset(null, "Merge pull request #276 in TEST/test-project from TEST-1", START_OF_2016),
-                        new Changeset(null, "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
-                        new Changeset(null, "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
+        given(commitIterator.hasNext()).willReturn(true, true, true, false);
+        given(commitIterator.next())
+                .willReturn(new SimpleCommit(null, "Merge pull request #276 in TEST/test-project from TEST-1", START_OF_2016),
+                        new SimpleCommit(null, "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
+                        new SimpleCommit(null, "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
         given(jiraService.findVersion(any(), any())).willReturn(Optional.empty());
         given(jiraService.createJiraVersion(any())).willReturn(new SerializedVersion(null, "1.0.1", "TEST", null, null));
 
@@ -115,12 +115,12 @@ public class JiraVersionGeneratorTest {
     @Test
     public void shouldReleaseVersion() throws IOException, CredentialsRequiredException, ResponseException, ParseException {
 
-        givenJiraVersionGeneratorWithReleaseCommit(new Changeset(null, "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016));
-        given(changesetIterator.hasNext()).willReturn(true, true, true, false);
-        given(changesetIterator.next())
-                .willReturn(new Changeset(null, "Merge pull request #276 in TEST/test-project from TEST-1", START_OF_2016),
-                        new Changeset(null, "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
-                        new Changeset(null, "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
+        givenJiraVersionGeneratorWithReleaseCommit(new SimpleCommit(null, "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016));
+        given(commitIterator.hasNext()).willReturn(true, true, true, false);
+        given(commitIterator.next())
+                .willReturn(new SimpleCommit(null, "Merge pull request #276 in TEST/test-project from TEST-1", START_OF_2016),
+                        new SimpleCommit(null, "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
+                        new SimpleCommit(null, "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
         given(jiraService.findVersion(any(), any())).willReturn(Optional.empty());
         given(jiraService.createJiraVersion(any())).willReturn(new SerializedVersion(null, "1.0.1", "TEST", null, null));
 
@@ -133,7 +133,7 @@ public class JiraVersionGeneratorTest {
 
         jiraVersionGenerator = new JiraVersionGenerator(jiraService,
                 commit,
-                changesetIterator,
+                commitIterator,
                 new CommitMessageVersionExtractor(
                         "test-project", null), clock);
     }

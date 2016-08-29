@@ -68,14 +68,14 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
         String branchName = refChange.getRef().getId();
         Iterator<Commit> commitIterator = CommitPageCrawler.of(historyService, branchName, repositoryHookContext.getRepository());
 
-        Commit hookEventChangeset = findHookEventCommit(refChange.getToHash(), commitIterator);
+        Commit hookEventCommit = findHookEventCommit(refChange.getToHash(), commitIterator);
 
         String repositoryName = repositoryHookContext.getRepository().getName();
         CommitMessageVersionExtractor commitMessageVersionExtractor = new CommitMessageVersionExtractor(
                 repositoryName, getSetting(repositoryHookContext, VersionPatternValidator.SETTINGS_KEY).orElse(""));
 
         JiraVersionGenerator jiraVersionGenerator = new JiraVersionGenerator(jiraService,
-                hookEventChangeset,
+                hookEventCommit,
                 commitIterator,
                 commitMessageVersionExtractor,
                 ClockFactory.getInstance());
@@ -108,6 +108,6 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
             }
         }
 
-        throw new IllegalArgumentException(String.format("Changeset with id %s not found", id));
+        throw new IllegalArgumentException(String.format("Commit with id %s not found", id));
     }
 }

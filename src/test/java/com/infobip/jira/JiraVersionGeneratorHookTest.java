@@ -67,7 +67,7 @@ public class JiraVersionGeneratorHookTest {
     private Repository repository;
 
     @Mock
-    private Page<Commit> changesetPage;
+    private Page<Commit> commitPage;
 
     @Mock
     private RefChange latestRefChange;
@@ -97,8 +97,8 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenChangesets(new Changeset("latest", "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016),
-                new Changeset("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
+        givenCommits(new SimpleCommit("latest", "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016),
+                new SimpleCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "branch");
@@ -117,9 +117,9 @@ public class JiraVersionGeneratorHookTest {
         givenSetting("jira-version-prefix", "infobip-test-");
         givenSetting("jira-project-key", "TEST");
         givenRepositoryName("test-project");
-        givenChangesets(new Changeset("latest",
+        givenCommits(new SimpleCommit("latest",
                 "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016),
-                new Changeset("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
+                new SimpleCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "branch");
@@ -130,8 +130,8 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(olderRefChange);
 
         then(jiraService).should().findVersion(new ProjectKey("TEST"), "infobip-test-1.0.1");
-        thenGetChangesets(times(1), "master");
-        thenGetChangesets(times(1), "branch");
+        thenGetCommits(times(1), "master");
+        thenGetCommits(times(1), "branch");
     }
 
     @Test
@@ -140,8 +140,8 @@ public class JiraVersionGeneratorHookTest {
         givenSetting("jira-project-key", "TEST");
         givenSetting("release-commit-version-pattern", "Release (?<version>.*)");
         givenRepositoryName("test-project");
-        givenChangesets(new Changeset("latest", "Release 1.0.1", START_OF_2016),
-                new Changeset("older", "Release test-project-1.0.0", START_OF_2016));
+        givenCommits(new SimpleCommit("latest", "Release 1.0.1", START_OF_2016),
+                new SimpleCommit("older", "Release test-project-1.0.0", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "branch");
@@ -152,8 +152,8 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(olderRefChange);
 
         then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.1");
-        thenGetChangesets(times(1), "master");
-        thenGetChangesets(times(1), "branch");
+        thenGetCommits(times(1), "master");
+        thenGetCommits(times(1), "branch");
     }
 
     @Test
@@ -161,10 +161,10 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenChangesets(new Changeset("latest",
+        givenCommits(new SimpleCommit("latest",
                 "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
-                new Changeset("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new Changeset("oldest", "TEST-1", START_OF_2016));
+                new SimpleCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                new SimpleCommit("oldest", "TEST-1", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "master");
@@ -175,7 +175,7 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(latestRefChange);
 
         then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.0");
-        thenGetChangesets(times(2), "master");
+        thenGetCommits(times(2), "master");
     }
 
     @Test
@@ -183,9 +183,9 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenChangesets(new Changeset("latest",
+        givenCommits(new SimpleCommit("latest",
                 "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new Changeset("older", "TEST-1", START_OF_2016));
+                new SimpleCommit("older", "TEST-1", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "branch");
@@ -196,8 +196,8 @@ public class JiraVersionGeneratorHookTest {
         whenPostReceive(olderRefChange);
 
         then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.0");
-        thenGetChangesets(times(1), "master");
-        thenGetChangesets(times(1), "branch");
+        thenGetCommits(times(1), "master");
+        thenGetCommits(times(1), "branch");
     }
 
     @Test
@@ -205,10 +205,10 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenChangesets(new Changeset("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new Changeset("2", "Merge pull request #3 in TEST/test-project from test to master", START_OF_2016),
-                new Changeset("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
-                new Changeset("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
+        givenCommits(new SimpleCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                new SimpleCommit("2", "Merge pull request #3 in TEST/test-project from test to master", START_OF_2016),
+                new SimpleCommit("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
+                new SimpleCommit("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
         givenLatestRefChange("1", "master");
         givenJiraVersionDoesNotExist();
         givenCreatedVersion("1", "1.0.0", "TEST");
@@ -225,12 +225,12 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenChangesets(new Changeset("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new Changeset("2",
+        givenCommits(new SimpleCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                new SimpleCommit("2",
                         "Merge pull request #298 in TEST/test-project from test to master", START_OF_2016),
-                new Changeset("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
-                new Changeset("3", "Merge pull request #295 in TEST/test-project from ABCD-1", START_OF_2016),
-                new Changeset("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
+                new SimpleCommit("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
+                new SimpleCommit("3", "Merge pull request #295 in TEST/test-project from ABCD-1", START_OF_2016),
+                new SimpleCommit("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
         givenLatestRefChange("1", "master");
         givenJiraVersionDoesNotExist();
         givenCreatedVersion("1", "1.0.0", "TEST");
@@ -248,10 +248,10 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenChangesets(new Changeset("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new Changeset("2",
+        givenCommits(new SimpleCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                new SimpleCommit("2",
                         "Merge pull request #298 in TEST/test-project from test to master", START_OF_2016),
-                new Changeset("3",
+                new SimpleCommit("3",
                         "Merge pull request #2 in TEST/test-project from TEST-1, TEST-2, TEST-3", START_OF_2016));
         givenLatestRefChange("1", "master");
         givenJiraVersionDoesNotExist();
@@ -292,11 +292,11 @@ public class JiraVersionGeneratorHookTest {
         given(latestMinimalRef.getId()).willReturn(branchName);
     }
 
-    private void givenChangesets(Commit... changesets) {
+    private void givenCommits(Commit... commits) {
 
-        given(changesetPage.getValues()).willReturn(ImmutableList.copyOf(changesets));
+        given(commitPage.getValues()).willReturn(ImmutableList.copyOf(commits));
         given(historyService.getCommits(any(CommitsRequest.class),
-                any(PageRequest.class))).willReturn(changesetPage);
+                any(PageRequest.class))).willReturn(commitPage);
     }
 
     private void givenRepositoryName(String value) {
@@ -314,7 +314,7 @@ public class JiraVersionGeneratorHookTest {
         return new SerializedVersion(null, name, Project, null, false);
     }
 
-    private void thenGetChangesets(VerificationMode verificationMode, String branchName) {
+    private void thenGetCommits(VerificationMode verificationMode, String branchName) {
 
         CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
 

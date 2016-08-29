@@ -29,21 +29,21 @@ import static java.util.Objects.requireNonNull;
 public class JiraVersionGenerator {
 
     private final JiraService jiraService;
-    private final Commit releaseChangeset;
-    private final Iterator<Commit> changesetIterator;
+    private final Commit releaseCommit;
+    private final Iterator<Commit> commitIterator;
     private final CommitMessageVersionExtractor commitMessageVersionExtractor;
     private final Clock clock;
 
     public JiraVersionGenerator(JiraService jiraService,
-                                Commit releaseChangeset,
-                                Iterator<Commit> changesetIterator,
+                                Commit releaseCommit,
+                                Iterator<Commit> commitIterator,
                                 CommitMessageVersionExtractor commitMessageVersionExtractor,
                                 Clock clock) {
 
-        this.releaseChangeset = releaseChangeset;
+        this.releaseCommit = releaseCommit;
 
         this.jiraService = requireNonNull(jiraService);
-        this.changesetIterator = requireNonNull(changesetIterator);
+        this.commitIterator = requireNonNull(commitIterator);
         this.commitMessageVersionExtractor = requireNonNull(commitMessageVersionExtractor);
         this.clock = clock;
     }
@@ -51,11 +51,11 @@ public class JiraVersionGenerator {
     public void generate(String jiraVersionPrefix,
                          ProjectKey projectKey) {
 
-        if (!changesetIterator.hasNext()) {
+        if (!commitIterator.hasNext()) {
             return;
         }
 
-        commitMessageVersionExtractor.extractVersionName(releaseChangeset.getMessage())
+        commitMessageVersionExtractor.extractVersionName(releaseCommit.getMessage())
                 .ifPresent(versionName -> generate(jiraVersionPrefix, projectKey, versionName));
 
     }
@@ -72,7 +72,7 @@ public class JiraVersionGenerator {
 
         List<IssueKey> issuesSolvedInVersion = getIssueKeys(versionCommits, projectKey);
         jiraService.addVersionToIssues(version.getName(), projectKey, issuesSolvedInVersion);
-        LocalDate releaseDate = releaseChangeset.getAuthorTimestamp().toInstant().atZone(clock.getZone()).toLocalDate();
+        LocalDate releaseDate = releaseCommit.getAuthorTimestamp().toInstant().atZone(clock.getZone()).toLocalDate();
         jiraService.releaseVersion(version, releaseDate);
     }
 
@@ -88,9 +88,9 @@ public class JiraVersionGenerator {
                 .collect(Collectors.toList());
     }
 
-    private List<IssueKey> getIssueKeys(Commit changeset, ProjectKey projectKey) {
+    private List<IssueKey> getIssueKeys(Commit commit, ProjectKey projectKey) {
 
-        return Optional.ofNullable(changeset.getMessage())
+        return Optional.ofNullable(commit.getMessage())
                 .map(message -> {
                     Pattern pattern = Pattern.compile(projectKey.getValue() + "-([0-9]+)");
                     Matcher matcher = pattern.matcher(message);
@@ -104,17 +104,17 @@ public class JiraVersionGenerator {
 
     private List<Commit> getAllCommitsNewerThanPreviousRelease() {
 
-        List<Commit> versionChangesets = new ArrayList<>();
+        List<Commit> versionCommit = new ArrayList<>();
 
-        while (changesetIterator.hasNext()) {
-            Commit changeset = changesetIterator.next();
+        while (commitIterator.hasNext()) {
+            Commit commit = commitIterator.next();
 
-            if (commitMessageVersionExtractor.extractVersionName(changeset.getMessage()).isPresent()) {
+            if (commitMessageVersionExtractor.extractVersionName(commit.getMessage()).isPresent()) {
                 break;
             }
 
-            versionChangesets.add(changeset);
+            versionCommit.add(commit);
         }
-        return versionChangesets;
+        return versionCommit;
     }
 }
