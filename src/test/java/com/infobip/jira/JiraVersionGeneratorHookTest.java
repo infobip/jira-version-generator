@@ -20,6 +20,7 @@ import com.atlassian.bitbucket.commit.*;
 import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.repository.*;
 import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.user.TestApplicationUser;
 import com.atlassian.bitbucket.util.Page;
 import com.atlassian.bitbucket.util.PageRequest;
 import com.atlassian.sal.api.net.ResponseException;
@@ -35,8 +36,8 @@ import org.mockito.verification.VerificationMode;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Optional;
+import java.time.ZoneOffset;
+import java.util.*;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -97,8 +98,8 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenCommits(new SimpleCommit("latest", "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016),
-                new SimpleCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
+        givenCommits(givenCommit("latest", "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016),
+                givenCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "branch");
@@ -117,9 +118,9 @@ public class JiraVersionGeneratorHookTest {
         givenSetting("jira-version-prefix", "infobip-test-");
         givenSetting("jira-project-key", "TEST");
         givenRepositoryName("test-project");
-        givenCommits(new SimpleCommit("latest",
+        givenCommits(givenCommit("latest",
                 "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016),
-                new SimpleCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
+                givenCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "branch");
@@ -140,8 +141,8 @@ public class JiraVersionGeneratorHookTest {
         givenSetting("jira-project-key", "TEST");
         givenSetting("release-commit-version-pattern", "Release (?<version>.*)");
         givenRepositoryName("test-project");
-        givenCommits(new SimpleCommit("latest", "Release 1.0.1", START_OF_2016),
-                new SimpleCommit("older", "Release test-project-1.0.0", START_OF_2016));
+        givenCommits(givenCommit("latest", "Release 1.0.1", START_OF_2016),
+                givenCommit("older", "Release test-project-1.0.0", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "branch");
@@ -161,10 +162,10 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenCommits(new SimpleCommit("latest",
+        givenCommits(givenCommit("latest",
                 "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
-                new SimpleCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new SimpleCommit("oldest", "TEST-1", START_OF_2016));
+                givenCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                givenCommit("oldest", "TEST-1", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "master");
@@ -183,9 +184,9 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenCommits(new SimpleCommit("latest",
+        givenCommits(givenCommit("latest",
                 "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new SimpleCommit("older", "TEST-1", START_OF_2016));
+                givenCommit("older", "TEST-1", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "branch");
@@ -205,10 +206,10 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenCommits(new SimpleCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new SimpleCommit("2", "Merge pull request #3 in TEST/test-project from test to master", START_OF_2016),
-                new SimpleCommit("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
-                new SimpleCommit("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
+        givenCommits(givenCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                givenCommit("2", "Merge pull request #3 in TEST/test-project from test to master", START_OF_2016),
+                givenCommit("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
+                givenCommit("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
         givenLatestRefChange("1", "master");
         givenJiraVersionDoesNotExist();
         givenCreatedVersion("1", "1.0.0", "TEST");
@@ -225,12 +226,12 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenCommits(new SimpleCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new SimpleCommit("2",
+        givenCommits(givenCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                givenCommit("2",
                         "Merge pull request #298 in TEST/test-project from test to master", START_OF_2016),
-                new SimpleCommit("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
-                new SimpleCommit("3", "Merge pull request #295 in TEST/test-project from ABCD-1", START_OF_2016),
-                new SimpleCommit("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
+                givenCommit("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
+                givenCommit("3", "Merge pull request #295 in TEST/test-project from ABCD-1", START_OF_2016),
+                givenCommit("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
         givenLatestRefChange("1", "master");
         givenJiraVersionDoesNotExist();
         givenCreatedVersion("1", "1.0.0", "TEST");
@@ -248,10 +249,10 @@ public class JiraVersionGeneratorHookTest {
 
         givenRepositoryName("test-project");
         givenSetting("jira-project-key", "TEST");
-        givenCommits(new SimpleCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
-                new SimpleCommit("2",
+        givenCommits(givenCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                givenCommit("2",
                         "Merge pull request #298 in TEST/test-project from test to master", START_OF_2016),
-                new SimpleCommit("3",
+                givenCommit("3",
                         "Merge pull request #2 in TEST/test-project from TEST-1, TEST-2, TEST-3", START_OF_2016));
         givenLatestRefChange("1", "master");
         givenJiraVersionDoesNotExist();
@@ -322,4 +323,11 @@ public class JiraVersionGeneratorHookTest {
                 any(PageRequest.class));
     }
 
+    Commit givenCommit(String id, String message, LocalDate authorTimestamp) {
+        return new SimpleCommit.Builder(id)
+                .author(new TestApplicationUser(""))
+                .message(message)
+                .authorTimestamp(Date.from(authorTimestamp.atStartOfDay().toInstant(ZoneOffset.UTC)))
+                .build();
+    }
 }

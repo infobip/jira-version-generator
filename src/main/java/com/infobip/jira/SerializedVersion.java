@@ -17,6 +17,7 @@ package com.infobip.jira;
 
 import lombok.Value;
 
+import javax.annotation.Nullable;
 import java.time.LocalDate;
 
 @Value
@@ -28,7 +29,7 @@ class SerializedVersion {
     private final LocalDate releaseDate;
     private final Boolean released;
 
-    SerializedVersion(String id, String name, String project, LocalDate releaseDate, Boolean released) {
+    SerializedVersion(@Nullable  String id, String name, String project, @Nullable LocalDate releaseDate, @Nullable Boolean released) {
         this.id = id;
         this.name = name;
         this.project = project;
