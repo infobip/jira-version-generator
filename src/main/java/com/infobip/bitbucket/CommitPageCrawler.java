@@ -25,7 +25,7 @@ import com.atlassian.bitbucket.util.PageUtils;
 
 import java.util.Iterator;
 
-class ChangesetPageCrawler implements Iterator<Commit> {
+class CommitPageCrawler implements Iterator<Commit> {
 
     private final CommitService commitService;
     private final String branchName;
@@ -34,18 +34,18 @@ class ChangesetPageCrawler implements Iterator<Commit> {
     private Page<Commit> currentPage;
     private Iterator<Commit> currentPageIterator;
 
-    public static ChangesetPageCrawler of(CommitService historyService,
-                                          String branchName,
-                                          Repository repository) {
+    public static CommitPageCrawler of(CommitService historyService,
+                                       String branchName,
+                                       Repository repository) {
 
         CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
 
         Page<Commit> currentPage = historyService.getCommits(request, PageUtils.newRequest(0, 2));
 
-        return new ChangesetPageCrawler(historyService, branchName, repository, currentPage);
+        return new CommitPageCrawler(historyService, branchName, repository, currentPage);
     }
 
-    private ChangesetPageCrawler(CommitService commitService, String branchName, Repository repository, Page<Commit> currentPage) {
+    private CommitPageCrawler(CommitService commitService, String branchName, Repository repository, Page<Commit> currentPage) {
 
         this.commitService = commitService;
         this.branchName = branchName;

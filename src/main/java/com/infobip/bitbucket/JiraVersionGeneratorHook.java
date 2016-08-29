@@ -65,25 +65,22 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 
     private void postReceive(RepositoryHookContext repositoryHookContext, RefChange refChange) {
 
-        ProjectKey projectKey = new ProjectKey(getSetting(repositoryHookContext, ProjectKeyValidator.SETTINGS_KEY).orElse(""));
-
-        Repository repository = repositoryHookContext.getRepository();
-
         String branchName = refChange.getRef().getId();
-        Iterator<Commit> changesets = ChangesetPageCrawler.of(historyService, branchName, repository);
+        Iterator<Commit> commitIterator = CommitPageCrawler.of(historyService, branchName, repositoryHookContext.getRepository());
 
-        Commit hookEventChangeset = findHookEventChangeset(refChange.getToHash(), changesets);
+        Commit hookEventChangeset = findHookEventCommit(refChange.getToHash(), commitIterator);
 
-        String repositoryName = repository.getName();
+        String repositoryName = repositoryHookContext.getRepository().getName();
         CommitMessageVersionExtractor commitMessageVersionExtractor = new CommitMessageVersionExtractor(
                 repositoryName, getSetting(repositoryHookContext, VersionPatternValidator.SETTINGS_KEY).orElse(""));
 
         JiraVersionGenerator jiraVersionGenerator = new JiraVersionGenerator(jiraService,
                 hookEventChangeset,
-                changesets,
+                commitIterator,
                 commitMessageVersionExtractor,
                 ClockFactory.getInstance());
 
+        ProjectKey projectKey = new ProjectKey(getSetting(repositoryHookContext, ProjectKeyValidator.SETTINGS_KEY).orElse(""));
         String jiraVersionPrefix = getSetting(repositoryHookContext, "jira-version-prefix").orElse("");
         jiraVersionGenerator.generate(jiraVersionPrefix, projectKey);
     }
@@ -100,11 +97,11 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
         return Optional.ofNullable(repositoryHookContext.getSettings().getString(key));
     }
 
-    private Commit findHookEventChangeset(String id, Iterator<Commit> changesets) {
+    private Commit findHookEventCommit(String id, Iterator<Commit> commitIterator) {
 
-        while (changesets.hasNext()) {
+        while (commitIterator.hasNext()) {
 
-            Commit next = changesets.next();
+            Commit next = commitIterator.next();
 
             if (next.getId().equals(id)) {
                 return next;
