@@ -27,8 +27,7 @@ import com.infobip.jira.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook, RepositorySettingsValidator {
 
@@ -54,41 +53,30 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
         }
 
         RefChange refChange = refChanges.iterator().next();
-        String branchName = refChange.getRef().getId();
-        Settings settings = repositoryHookContext.getSettings();
-        String jiraVersionPrefix = settings.getString("jira-version-prefix", "");
-
-        ProjectKey projectKey;
 
         try {
-            projectKey = new ProjectKey(settings.getString(ProjectKeyValidator.SETTINGS_KEY, ""));
-        } catch (IllegalArgumentException e) {
-            logger.error("failed to generate jira JIRA version and link issues", e);
-            return;
+            postReceive(repositoryHookContext, refChange);
+        } catch (NoSuchCommitException ignored) {
+            // branch was deleted
+        } catch (RuntimeException e) {
+            logger.error("Failed to generate jira JIRA version and link issues", e);
         }
+    }
+
+    private void postReceive(RepositoryHookContext repositoryHookContext, RefChange refChange) {
+
+        ProjectKey projectKey = new ProjectKey(getSetting(repositoryHookContext, ProjectKeyValidator.SETTINGS_KEY).orElse(""));
 
         Repository repository = repositoryHookContext.getRepository();
 
-        Iterator<Commit> changesets;
-        try {
-            changesets = ChangesetPageCrawler.of(historyService, branchName, repository);
-        } catch (NoSuchCommitException e) {
-            // branch was deleted
-            return;
-        }
+        String branchName = refChange.getRef().getId();
+        Iterator<Commit> changesets = ChangesetPageCrawler.of(historyService, branchName, repository);
 
-        Commit hookEventChangeset;
-
-        try {
-            hookEventChangeset = findHookEventChangeset(refChange.getToHash(), changesets);
-        } catch (Exception e) {
-            logger.warn(e.getMessage());
-            return;
-        }
+        Commit hookEventChangeset = findHookEventChangeset(refChange.getToHash(), changesets);
 
         String repositoryName = repository.getName();
         CommitMessageVersionExtractor commitMessageVersionExtractor = new CommitMessageVersionExtractor(
-                repositoryName, settings.getString(VersionPatternValidator.SETTINGS_KEY, ""));
+                repositoryName, getSetting(repositoryHookContext, VersionPatternValidator.SETTINGS_KEY).orElse(""));
 
         JiraVersionGenerator jiraVersionGenerator = new JiraVersionGenerator(jiraService,
                 hookEventChangeset,
@@ -96,11 +84,8 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
                 commitMessageVersionExtractor,
                 ClockFactory.getInstance());
 
-        try {
-            jiraVersionGenerator.generate(jiraVersionPrefix, projectKey);
-        } catch (JiraServiceException e) {
-            logger.error("Failed to generate Jira version for project " + projectKey, e);
-        }
+        String jiraVersionPrefix = getSetting(repositoryHookContext, "jira-version-prefix").orElse("");
+        jiraVersionGenerator.generate(jiraVersionPrefix, projectKey);
     }
 
     @Override
@@ -111,7 +96,11 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
         }
     }
 
-    private Commit findHookEventChangeset(String id, Iterator<Commit> changesets) throws Exception {
+    private Optional<String> getSetting(RepositoryHookContext repositoryHookContext, String key) {
+        return Optional.ofNullable(repositoryHookContext.getSettings().getString(key));
+    }
+
+    private Commit findHookEventChangeset(String id, Iterator<Commit> changesets) {
 
         while (changesets.hasNext()) {
 
@@ -122,6 +111,6 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
             }
         }
 
-        throw new Exception(String.format("Changeset with id %s not found", id));
+        throw new IllegalArgumentException(String.format("Changeset with id %s not found", id));
     }
 }
