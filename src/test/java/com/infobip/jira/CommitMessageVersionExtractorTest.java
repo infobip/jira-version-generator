@@ -17,70 +17,46 @@ package com.infobip.jira;
 
 import org.junit.Test;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class CommitMessageVersionExtractorTest {
 
-    private CommitMessageVersionExtractor commitMessageVersionExtractor;
-
-    private String version;
-
-    private String repositoryName;
-    private String versionPattern;
-
     @Test
     public void shouldSuccessfullyExtractVersionFromMavenReleaseMessage() {
 
-        givenRepositoryName("test-project");
-        givenNoVersionPattern();
+        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("test-project", "");
 
-        whenExtractVersion("[maven-release-plugin] prepare release test-project-1.0.0");
+        String actual = extractor.extractVersionName("[maven-release-plugin] prepare release test-project-1.0.0").orElse(null);
 
-        then(version).isEqualTo("1.0.0");
+        then(actual).isEqualTo("1.0.0");
     }
 
     @Test
     public void shouldSuccessfullyExtractVersionFromReleaseMessage() {
 
-        givenRepositoryName("test-project");
-        givenVersionPattern("Release (?<version>.*)");
+        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("test-project", "Release (?<version>.*)");
 
-        whenExtractVersion("Release 1.0.0");
+        String actual = extractor.extractVersionName("Release 1.0.0").orElse(null);
 
-        then(version).isEqualTo("1.0.0");
+        then(actual).isEqualTo("1.0.0");
     }
 
     @Test
     public void shouldFailToExtractVersionFromNonReleaseMessage() {
 
-        givenRepositoryName("test-project");
-        givenNoVersionPattern();
+        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("test-project", "");
 
-        whenExtractVersion("Non release commit message");
+        String actual = extractor.extractVersionName("Non release commit message").orElse(null);
 
-        then(version).isNull();
+        then(actual).isNull();
     }
 
-    private void givenRepositoryName(String repositoryName) {
+    @Test
+    public void shouldHandleNull() {
+        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("", "");
 
-        this.repositoryName = repositoryName;
-    }
+        String actual = extractor.extractVersionName(null).orElse(null);
 
-    private void givenNoVersionPattern() {
-
-        this.versionPattern = null;
-    }
-
-    private void givenVersionPattern(String regex) {
-
-        this.versionPattern = regex;
-    }
-
-    private void whenExtractVersion(String commitMessage) {
-
-        commitMessageVersionExtractor = new CommitMessageVersionExtractor(repositoryName, versionPattern);
-        version = commitMessageVersionExtractor.extractVersionName(commitMessage).orElse(null);
+        then(actual).isNull();
     }
 }

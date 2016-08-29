@@ -17,6 +17,7 @@ package com.infobip.jira;
 
 import com.google.common.base.Strings;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,14 +54,11 @@ public class CommitMessageVersionExtractor {
                                        "-(?<" + VERSION_REGEX_CAPTURING_GROUP_NAME + ">.*)");
     }
 
-    Optional<String> extractVersionName(String commitMessage) {
+    Optional<String> extractVersionName(@Nullable String commitMessage) {
 
-        Matcher matcher = versionPattern.matcher(commitMessage);
-
-        if (!matcher.find()) {
-            return Optional.empty();
-        }
-
-        return Optional.of(matcher.group(VERSION_REGEX_CAPTURING_GROUP_NAME));
+        return Optional.ofNullable(commitMessage)
+                .map(versionPattern::matcher)
+                .filter(Matcher::find)
+                .map(matcher -> matcher.group(VERSION_REGEX_CAPTURING_GROUP_NAME));
     }
 }
