@@ -17,27 +17,23 @@ package com.infobip.jira;
 
 import lombok.Value;
 
-import java.util.Objects;
+import javax.annotation.Nullable;
+import java.time.LocalDate;
 
-/**
- * JIRA issue key. For example ABC-123.
- *
- */
 @Value
-class IssueKey {
+class SerializedVersion {
 
-    private final ProjectKey projectKey;
-    private final IssueId issueId;
+    private final String id;
+    private final String name;
+    private final String project;
+    private final LocalDate releaseDate;
+    private final Boolean released;
 
-    public IssueKey(ProjectKey projectKey, IssueId issueId) {
-
-        this.projectKey = Objects.requireNonNull(projectKey);
-        this.issueId = Objects.requireNonNull(issueId);
-    }
-
-    @Override
-    public String toString() {
-
-        return projectKey.getValue() + "-" + issueId.getValue();
+    SerializedVersion(@Nullable  String id, String name, String project, @Nullable LocalDate releaseDate, @Nullable Boolean released) {
+        this.id = id;
+        this.name = name;
+        this.project = project;
+        this.releaseDate = releaseDate;
+        this.released = released;
     }
 }

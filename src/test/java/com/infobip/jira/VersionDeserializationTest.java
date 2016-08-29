@@ -1,5 +1,5 @@
 /**
- *# Copyright 2014 Infobip
+ *# Copyright 2016 Infobip
  #
  # Licensed under the Apache License, Version 2.0 (the "License");
  # you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.infobip.jira;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.infobip.infrastructure.ObjectMapperFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,9 +26,6 @@ import java.io.IOException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.extractProperty;
 
-/**
- * @author lpandzic
- */
 public class VersionDeserializationTest {
 
     private ObjectMapper objectMapper;
@@ -35,7 +33,7 @@ public class VersionDeserializationTest {
     @Before
     public void setUp() throws Exception {
 
-        objectMapper = new ObjectMapper();
+        objectMapper = ObjectMapperFactory.getInstance();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 

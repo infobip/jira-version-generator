@@ -7,16 +7,14 @@
 
 	<component-import key="applicationLinkService" interface="com.atlassian.applinks.api.ApplicationLinkService" />
 
-	<component key="jiraService" class="com.infobip.jira.ApplicationLinkedJiraService" public="true">
-		<interface>com.infobip.jira.JiraService</interface>
-	</component>
+	<component key="jiraService" class="com.infobip.jira.JiraService" public="false"/>
 
-	<repository-hook key="jiraVersionGeneratorHook" name="Jira version generator hook" class="com.infobip.stash.JiraVersionGeneratorHook">
+	<repository-hook key="jiraVersionGeneratorHook" name="Jira version generator hook" class="com.infobip.bitbucket.JiraVersionGeneratorHook">
 		<description>Generates Jira version and links issues to the version.</description>
 		<icon>images/icon.jpg</icon>
 
 		<config-form name="Jira Version Generator Configuration">
-			<view>com.infobip.stash.hook.formContents</view>
+			<view>com.infobip.bitbucket.hook.formContents</view>
 			<directory location="/static/" />
 		</config-form>
 	</repository-hook>

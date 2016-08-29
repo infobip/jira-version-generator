@@ -15,29 +15,9 @@
  */
 package com.infobip.jira;
 
-import lombok.Value;
+public class JiraServiceException extends RuntimeException {
 
-import java.util.Objects;
-
-/**
- * JIRA issue key. For example ABC-123.
- *
- */
-@Value
-class IssueKey {
-
-    private final ProjectKey projectKey;
-    private final IssueId issueId;
-
-    public IssueKey(ProjectKey projectKey, IssueId issueId) {
-
-        this.projectKey = Objects.requireNonNull(projectKey);
-        this.issueId = Objects.requireNonNull(issueId);
-    }
-
-    @Override
-    public String toString() {
-
-        return projectKey.getValue() + "-" + issueId.getValue();
+    JiraServiceException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

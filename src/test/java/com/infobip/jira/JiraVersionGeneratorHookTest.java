@@ -1,128 +1,139 @@
 /**
- *# Copyright 2014 Infobip
- #
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
+ * # Copyright 2016 Infobip
+ * #
+ * # Licensed under the Apache License, Version 2.0 (the "License");
+ * # you may not use this file except in compliance with the License.
+ * # You may obtain a copy of the License at
+ * #
+ * # http://www.apache.org/licenses/LICENSE-2.0
+ * #
+ * # Unless required by applicable law or agreed to in writing, software
+ * # distributed under the License is distributed on an "AS IS" BASIS,
+ * # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * # See the License for the specific language governing permissions and
+ * # limitations under the License.
  */
 package com.infobip.jira;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.times;
-
-import java.io.IOException;
-import java.util.Date;
-
 import com.atlassian.applinks.api.CredentialsRequiredException;
+import com.atlassian.bitbucket.commit.*;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
+import com.atlassian.bitbucket.repository.*;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.user.TestApplicationUser;
+import com.atlassian.bitbucket.util.Page;
+import com.atlassian.bitbucket.util.PageRequest;
 import com.atlassian.sal.api.net.ResponseException;
-import com.atlassian.stash.commit.Commit;
-import com.atlassian.stash.commit.CommitService;
-import com.atlassian.stash.commit.CommitsRequest;
-import com.atlassian.stash.history.HistoryService;
-import com.atlassian.stash.hook.repository.RepositoryHookContext;
-import com.atlassian.stash.repository.RefChange;
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.util.Page;
-import com.atlassian.stash.util.PageRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.ImmutableList;
-import com.infobip.stash.JiraVersionGeneratorHook;
+import com.infobip.bitbucket.JiraVersionGeneratorHook;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.*;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.refEq;
+import static org.mockito.Mockito.times;
+
 @RunWith(MockitoJUnitRunner.class)
 public class JiraVersionGeneratorHookTest {
 
-	@InjectMocks
-	private JiraVersionGeneratorHook jiraVersionGeneratorHook;
+    private static final LocalDate START_OF_2016 = LocalDate.of(2016, 1, 1);
 
-	@Mock
-	private CommitService historyService;
+    @InjectMocks
+    private JiraVersionGeneratorHook jiraVersionGeneratorHook;
 
-	@Mock
-	private JiraService jiraService;
+    @Mock
+    private CommitService historyService;
 
-	@Mock
-	private RepositoryHookContext repositoryHookContext;
+    @Mock
+    private JiraService jiraService;
 
-	@Mock
-	private Repository repository;
+    @Mock
+    private RepositoryHookContext repositoryHookContext;
 
-	@Mock
-	private Page<Commit> changesetPage;
+    @Mock
+    private Repository repository;
 
-	@Mock
-	private RefChange latestRefChange;
+    @Mock
+    private Page<Commit> commitPage;
 
-	@Mock
-	private RefChange olderRefChange;
+    @Mock
+    private RefChange latestRefChange;
 
-	@Mock
-	private Settings settings;
+    @Mock
+    private MinimalRef latestMinimalRef;
 
-	@Before
-	public void setUp() throws Exception {
+    @Mock
+    private RefChange olderRefChange;
 
-		given(repositoryHookContext.getSettings()).willReturn(settings);
-		given(settings.getString(anyString(), eq(""))).willReturn("");
-		given(repositoryHookContext.getRepository()).willReturn(repository);
-	}
+    @Mock
+    private MinimalRef olderMinimalRef;
 
-	@Test
-	public void shouldGenerateVersionWithNoIssues() throws IOException, CredentialsRequiredException, ResponseException {
+    @Mock
+    private Settings settings;
 
-		givenRepositoryName("test-project");
-		givenSetting("jira-project-key", "TEST");
-		givenChangesets(Changeset.of("latest",
-		                             "[maven-release-plugin] prepare release test-project-1.0.1"),
-		                Changeset.of("older", "[maven-release-plugin] prepare release test-project-1.0.0"));
+    @Before
+    public void setUp() throws Exception {
 
-		givenLatestRefChange("latest", "master");
-		givenOlderRefChange("older", "branch");
+        given(repositoryHookContext.getSettings()).willReturn(settings);
+        given(settings.getString(anyString(), eq(""))).willReturn("");
+        given(repositoryHookContext.getRepository()).willReturn(repository);
+    }
 
-		whenPostReceive(latestRefChange);
-		whenPostReceive(olderRefChange);
+    @Test
+    public void shouldGenerateVersionWithNoIssues() throws IOException, CredentialsRequiredException, ResponseException {
 
-		thenDoesJiraVersionExist(Version.of("1.0.1", new ProjectKey("TEST"), true, new Date()));
-	}
+        givenRepositoryName("test-project");
+        givenSetting("jira-project-key", "TEST");
+        givenCommits(givenCommit("latest", "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016),
+                givenCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
 
-	@Test
-	public void shouldGenerateJiraVersionWithAPrefix() throws IOException, CredentialsRequiredException, ResponseException {
+        givenLatestRefChange("latest", "master");
+        givenOlderRefChange("older", "branch");
+        givenJiraVersionDoesNotExist();
+        givenCreatedVersion("1", "1.0.1", "TEST");
 
-		givenSetting("jira-version-prefix", "infobip-test-");
-		givenSetting("jira-project-key", "TEST");
-		givenRepositoryName("test-project");
-		givenChangesets(Changeset.of("latest",
-		                             "[maven-release-plugin] prepare release test-project-1.0.1"),
-		                Changeset.of("older", "[maven-release-plugin] prepare release test-project-1.0.0"));
+        whenPostReceive(latestRefChange);
+        whenPostReceive(olderRefChange);
 
-		givenLatestRefChange("latest", "master");
-		givenOlderRefChange("older", "branch");
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.1");
+    }
 
-		whenPostReceive(latestRefChange);
-		whenPostReceive(olderRefChange);
+    @Test
+    public void shouldGenerateJiraVersionWithAPrefix() throws IOException, CredentialsRequiredException, ResponseException {
 
-		thenDoesJiraVersionExist(Version.of("infobip-test-1.0.1", new ProjectKey("TEST"), true, new Date()));
-		thenGetChangesets(times(1), "master");
-		thenGetChangesets(times(1), "branch");
-	}
+        givenSetting("jira-version-prefix", "infobip-test-");
+        givenSetting("jira-project-key", "TEST");
+        givenRepositoryName("test-project");
+        givenCommits(givenCommit("latest",
+                "[maven-release-plugin] prepare release test-project-1.0.1", START_OF_2016),
+                givenCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016));
+
+        givenLatestRefChange("latest", "master");
+        givenOlderRefChange("older", "branch");
+        givenJiraVersionDoesNotExist();
+        givenCreatedVersion("1", "infobip-test-1.0.1", "TEST");
+
+        whenPostReceive(latestRefChange);
+        whenPostReceive(olderRefChange);
+
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "infobip-test-1.0.1");
+        thenGetCommits(times(1), "master");
+        thenGetCommits(times(1), "branch");
+    }
 
     @Test
     public void shouldGenerateJiraVersionWithACustomVersionPattern() throws IOException, CredentialsRequiredException, ResponseException {
@@ -130,188 +141,193 @@ public class JiraVersionGeneratorHookTest {
         givenSetting("jira-project-key", "TEST");
         givenSetting("release-commit-version-pattern", "Release (?<version>.*)");
         givenRepositoryName("test-project");
-        givenChangesets(Changeset.of("latest", "Release 1.0.1"),
-                        Changeset.of("older", "Release test-project-1.0.0"));
+        givenCommits(givenCommit("latest", "Release 1.0.1", START_OF_2016),
+                givenCommit("older", "Release test-project-1.0.0", START_OF_2016));
 
         givenLatestRefChange("latest", "master");
         givenOlderRefChange("older", "branch");
+        givenJiraVersionDoesNotExist();
+        givenCreatedVersion("1", "1.0.1", "TEST");
 
         whenPostReceive(latestRefChange);
         whenPostReceive(olderRefChange);
 
-        thenDoesJiraVersionExist(Version.of("1.0.1", new ProjectKey("TEST"), true, new Date()));
-        thenGetChangesets(times(1), "master");
-        thenGetChangesets(times(1), "branch");
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.1");
+        thenGetCommits(times(1), "master");
+        thenGetCommits(times(1), "branch");
     }
 
-	@Test
-	public void shouldGenerateJiraVersionAndLinkIssuesWhenHookEventOccursAfterAnotherCommit() throws IOException, CredentialsRequiredException, ResponseException {
+    @Test
+    public void shouldGenerateJiraVersionAndLinkIssuesWhenHookEventOccursAfterAnotherCommit() throws IOException, CredentialsRequiredException, ResponseException {
 
-		givenRepositoryName("test-project");
-		givenSetting("jira-project-key", "TEST");
-		givenChangesets(Changeset.of("latest",
-		                             "[maven-release-plugin] prepare for next development iteration"),
-		                Changeset.of("older", "[maven-release-plugin] prepare release test-project-1.0.0"),
-		                Changeset.of("oldest", "TEST-1"));
+        givenRepositoryName("test-project");
+        givenSetting("jira-project-key", "TEST");
+        givenCommits(givenCommit("latest",
+                "[maven-release-plugin] prepare for next development iteration", START_OF_2016),
+                givenCommit("older", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                givenCommit("oldest", "TEST-1", START_OF_2016));
 
-		givenLatestRefChange("latest", "master");
-		givenOlderRefChange("older", "master");
+        givenLatestRefChange("latest", "master");
+        givenOlderRefChange("older", "master");
+        givenJiraVersionDoesNotExist();
+        givenCreatedVersion("1", "1.0.0", "TEST");
 
-		whenPostReceive(olderRefChange);
-		whenPostReceive(latestRefChange);
+        whenPostReceive(olderRefChange);
+        whenPostReceive(latestRefChange);
 
-		thenDoesJiraVersionExist(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()));
-		thenGetChangesets(times(2), "master");
-	}
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.0");
+        thenGetCommits(times(2), "master");
+    }
 
-	@Test
-	public void shouldGenerateJiraVersionAndLinkIssuesOnlyForLatestRefChange() throws IOException, CredentialsRequiredException, ResponseException {
+    @Test
+    public void shouldGenerateJiraVersionAndLinkIssuesOnlyForLatestRefChange() throws IOException, CredentialsRequiredException, ResponseException {
 
-		givenRepositoryName("test-project");
-		givenSetting("jira-project-key", "TEST");
-		givenChangesets(Changeset.of("latest",
-		                             "[maven-release-plugin] prepare release test-project-1.0.0"),
-		                Changeset.of("older", "TEST-1"));
+        givenRepositoryName("test-project");
+        givenSetting("jira-project-key", "TEST");
+        givenCommits(givenCommit("latest",
+                "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                givenCommit("older", "TEST-1", START_OF_2016));
 
-		givenLatestRefChange("latest", "master");
-		givenOlderRefChange("older", "branch");
+        givenLatestRefChange("latest", "master");
+        givenOlderRefChange("older", "branch");
+        givenJiraVersionDoesNotExist();
+        givenCreatedVersion("1", "1.0.0", "TEST");
 
-		whenPostReceive(latestRefChange);
-		whenPostReceive(olderRefChange);
+        whenPostReceive(latestRefChange);
+        whenPostReceive(olderRefChange);
 
-		thenDoesJiraVersionExist(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()));
-		thenGetChangesets(times(1), "master");
-		thenGetChangesets(times(1), "branch");
-	}
+        then(jiraService).should().findVersion(new ProjectKey("TEST"), "1.0.0");
+        thenGetCommits(times(1), "master");
+        thenGetCommits(times(1), "branch");
+    }
 
-	@Test
-	public void shouldGenerateJiraVersionAndLinkIssueWhenThereAreCommitsWithNoIssueKeyInMessage() throws IOException, CredentialsRequiredException, ResponseException {
+    @Test
+    public void shouldGenerateJiraVersionAndLinkIssueWhenThereAreCommitsWithNoIssueKeyInMessage() throws IOException, CredentialsRequiredException, ResponseException {
 
-		givenRepositoryName("test-project");
-		givenSetting("jira-project-key", "TEST");
-		givenChangesets(Changeset.of("1", "[maven-release-plugin] prepare release test-project-1.0.0"),
-		                Changeset.of("2",
-		                             "Merge pull request #3 in TEST/test-project from test to master"),
-		                Changeset.of("3", "Merge pull request #2 in TEST/test-project from TEST-1"),
-		                Changeset.of("4", "Merge pull request #1 in TEST/test-project from TEST-2"));
-		givenJiraVersionDoesNotExist(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()));
+        givenRepositoryName("test-project");
+        givenSetting("jira-project-key", "TEST");
+        givenCommits(givenCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                givenCommit("2", "Merge pull request #3 in TEST/test-project from test to master", START_OF_2016),
+                givenCommit("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
+                givenCommit("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
+        givenLatestRefChange("1", "master");
+        givenJiraVersionDoesNotExist();
+        givenCreatedVersion("1", "1.0.0", "TEST");
 
-		givenLatestRefChange("1", "master");
+        whenPostReceive(latestRefChange);
 
-		whenPostReceive(latestRefChange);
+        then(jiraService).should().createJiraVersion(unreleasedSerializedVersion("1.0.0", "TEST"));
 
-		thenShouldCreateJiraVersion(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()));
-		thenShouldAddVersionToIssues(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()),
-		                             IssueKey.of(new ProjectKey("TEST"), new IssueId("1")),
-		                             IssueKey.of(new ProjectKey("TEST"), new IssueId("2")));
-	}
+        then(jiraService).should().addVersionToIssues("1.0.0", new ProjectKey("TEST"), Arrays.asList(new IssueKey(new ProjectKey("TEST"), new IssueId("1")), new IssueKey(new ProjectKey("TEST"), new IssueId("2"))));
+    }
 
-	@Test
-	public void shouldNotLinkIssuesThatAreNotPartOfVersionProject() throws IOException, CredentialsRequiredException, ResponseException {
+    @Test
+    public void shouldNotLinkIssuesThatAreNotPartOfVersionProject() throws IOException, CredentialsRequiredException, ResponseException {
 
-		givenRepositoryName("test-project");
-		givenSetting("jira-project-key", "TEST");
-		givenChangesets(Changeset.of("1", "[maven-release-plugin] prepare release test-project-1.0.0"),
-		                Changeset.of("2",
-		                             "Merge pull request #298 in TEST/test-project from test to master"),
-		                Changeset.of("3", "Merge pull request #2 in TEST/test-project from TEST-1"),
-		                Changeset.of("3", "Merge pull request #295 in TEST/test-project from ABCD-1"),
-		                Changeset.of("4", "Merge pull request #1 in TEST/test-project from TEST-2"));
-		givenJiraVersionDoesNotExist(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()));
+        givenRepositoryName("test-project");
+        givenSetting("jira-project-key", "TEST");
+        givenCommits(givenCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                givenCommit("2",
+                        "Merge pull request #298 in TEST/test-project from test to master", START_OF_2016),
+                givenCommit("3", "Merge pull request #2 in TEST/test-project from TEST-1", START_OF_2016),
+                givenCommit("3", "Merge pull request #295 in TEST/test-project from ABCD-1", START_OF_2016),
+                givenCommit("4", "Merge pull request #1 in TEST/test-project from TEST-2", START_OF_2016));
+        givenLatestRefChange("1", "master");
+        givenJiraVersionDoesNotExist();
+        givenCreatedVersion("1", "1.0.0", "TEST");
 
-		givenLatestRefChange("1", "master");
 
-		whenPostReceive(latestRefChange);
+        whenPostReceive(latestRefChange);
 
-		thenShouldCreateJiraVersion(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()));
-		thenShouldAddVersionToIssues(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()),
-		                             IssueKey.of(new ProjectKey("TEST"), new IssueId("1")),
-		                             IssueKey.of(new ProjectKey("TEST"), new IssueId("2")));
-	}
+        then(jiraService).should().createJiraVersion(unreleasedSerializedVersion("1.0.0", "TEST"));
 
-	@Test
-	public void shouldLinkAllRelatedIssuesPresentInACommitMessage() throws IOException, CredentialsRequiredException, ResponseException {
+        then(jiraService).should().addVersionToIssues("1.0.0", new ProjectKey("TEST"), Arrays.asList(new IssueKey(new ProjectKey("TEST"), new IssueId("1")), new IssueKey(new ProjectKey("TEST"), new IssueId("2"))));
+    }
 
-		givenRepositoryName("test-project");
-		givenSetting("jira-project-key", "TEST");
-		givenChangesets(Changeset.of("1", "[maven-release-plugin] prepare release test-project-1.0.0"),
-		                Changeset.of("2",
-		                             "Merge pull request #298 in TEST/test-project from test to master"),
-		                Changeset.of("3",
-		                             "Merge pull request #2 in TEST/test-project from TEST-1, TEST-2, TEST-3"));
-		givenJiraVersionDoesNotExist(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()));
+    @Test
+    public void shouldLinkAllRelatedIssuesPresentInACommitMessage() throws IOException, CredentialsRequiredException, ResponseException {
 
-		givenLatestRefChange("1", "master");
+        givenRepositoryName("test-project");
+        givenSetting("jira-project-key", "TEST");
+        givenCommits(givenCommit("1", "[maven-release-plugin] prepare release test-project-1.0.0", START_OF_2016),
+                givenCommit("2",
+                        "Merge pull request #298 in TEST/test-project from test to master", START_OF_2016),
+                givenCommit("3",
+                        "Merge pull request #2 in TEST/test-project from TEST-1, TEST-2, TEST-3", START_OF_2016));
+        givenLatestRefChange("1", "master");
+        givenJiraVersionDoesNotExist();
+        givenCreatedVersion("1", "1.0.0", "TEST");
 
-		whenPostReceive(latestRefChange);
+        whenPostReceive(latestRefChange);
 
-		thenShouldCreateJiraVersion(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()));
-		thenShouldAddVersionToIssues(Version.of("1.0.0", new ProjectKey("TEST"), true, new Date()),
-		                             IssueKey.of(new ProjectKey("TEST"), new IssueId("1")),
-		                             IssueKey.of(new ProjectKey("TEST"), new IssueId("2")),
-		                             IssueKey.of(new ProjectKey("TEST"), new IssueId("3")));
-	}
+        then(jiraService).should().createJiraVersion(unreleasedSerializedVersion("1.0.0", "TEST"));
 
-	private void givenSetting(String key, String value) {
+        then(jiraService).should().addVersionToIssues("1.0.0", new ProjectKey("TEST"), Arrays.asList(new IssueKey(new ProjectKey("TEST"), new IssueId("1")), new IssueKey(new ProjectKey("TEST"), new IssueId("2")), new IssueKey(new ProjectKey("TEST"), new IssueId("3"))));
+    }
 
-		given(settings.getString(eq(key), anyString())).willReturn(value);
-	}
+    private void givenCreatedVersion(String id, String name, String project) {
+        given(jiraService.createJiraVersion(any())).willReturn(new SerializedVersion(id, name, project, null, false));
+    }
 
-	private void givenJiraVersionDoesNotExist(Version version) throws CredentialsRequiredException, ResponseException, IOException {
+    private void givenSetting(String key, String value) {
 
-		given(jiraService.doesJiraVersionExist(version)).willReturn(false);
-	}
+        given(settings.getString(eq(key))).willReturn(value);
+    }
 
-	private void givenOlderRefChange(String hash, String branchName) {
+    private void givenJiraVersionDoesNotExist() throws CredentialsRequiredException, ResponseException, IOException {
 
-		given(olderRefChange.getToHash()).willReturn(hash);
-		given(olderRefChange.getRefId()).willReturn(branchName);
-	}
+        given(jiraService.findVersion(any(), any())).willReturn(Optional.empty());
+    }
 
-	private void givenLatestRefChange(String hash, String branchName) {
+    private void givenOlderRefChange(String hash, String branchName) {
 
-		given(latestRefChange.getToHash()).willReturn(hash);
-		given(latestRefChange.getRefId()).willReturn(branchName);
-	}
+        given(olderRefChange.getToHash()).willReturn(hash);
+        given(olderRefChange.getRef()).willReturn(olderMinimalRef);
+        given(olderMinimalRef.getId()).willReturn(branchName);
+    }
 
-	private void givenChangesets(Commit... changesets) {
+    private void givenLatestRefChange(String hash, String branchName) {
 
-		given(changesetPage.getValues()).willReturn(ImmutableList.copyOf(changesets));
-		given(historyService.getCommits(any(CommitsRequest.class),
-		                                   any(PageRequest.class))).willReturn(changesetPage);
-	}
+        given(latestRefChange.getToHash()).willReturn(hash);
+        given(latestRefChange.getRef()).willReturn(latestMinimalRef);
+        given(latestMinimalRef.getId()).willReturn(branchName);
+    }
 
-	private void givenRepositoryName(String value) {
+    private void givenCommits(Commit... commits) {
 
-		given(repository.getName()).willReturn(value);
-	}
+        given(commitPage.getValues()).willReturn(ImmutableList.copyOf(commits));
+        given(historyService.getCommits(any(CommitsRequest.class),
+                any(PageRequest.class))).willReturn(commitPage);
+    }
 
-	private void whenPostReceive(RefChange refChange) {
+    private void givenRepositoryName(String value) {
 
-		jiraVersionGeneratorHook.postReceive(repositoryHookContext, ImmutableList.of(refChange));
-	}
+        given(repository.getName()).willReturn(value);
+    }
 
-	private void thenShouldAddVersionToIssues(Version version,
-	                                          IssueKey... issueKeys) throws CredentialsRequiredException, ResponseException, JsonProcessingException {
+    private void whenPostReceive(RefChange refChange) {
 
-		then(jiraService).should().addVersionToIssues(version, ImmutableList.copyOf(issueKeys));
-	}
+        jiraVersionGeneratorHook.postReceive(repositoryHookContext, ImmutableList.of(refChange));
+    }
 
-	private void thenShouldCreateJiraVersion(Version version) throws CredentialsRequiredException, ResponseException, JsonProcessingException {
+    private SerializedVersion unreleasedSerializedVersion(String name, String Project) {
 
-		then(jiraService).should().createJiraVersion(version);
-	}
+        return new SerializedVersion(null, name, Project, null, false);
+    }
 
-	private void thenGetChangesets(VerificationMode verificationMode, String branchName) {
+    private void thenGetCommits(VerificationMode verificationMode, String branchName) {
 
-		CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
+        CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
 
-		then(historyService).should(verificationMode).getCommits(refEq(request),
-		                                                            any(PageRequest.class));
-	}
+        then(historyService).should(verificationMode).getCommits(refEq(request),
+                any(PageRequest.class));
+    }
 
-	private void thenDoesJiraVersionExist(Version version) throws CredentialsRequiredException, ResponseException, IOException {
-
-		then(jiraService).should().doesJiraVersionExist(version);
-	}
+    Commit givenCommit(String id, String message, LocalDate authorTimestamp) {
+        return new SimpleCommit.Builder(id)
+                .author(new TestApplicationUser(""))
+                .message(message)
+                .authorTimestamp(Date.from(authorTimestamp.atStartOfDay().toInstant(ZoneOffset.UTC)))
+                .build();
+    }
 }

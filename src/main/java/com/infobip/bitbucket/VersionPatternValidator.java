@@ -1,5 +1,5 @@
 /**
- *# Copyright 2014 Infobip
+ *# Copyright 2016 Infobip
  #
  # Licensed under the Apache License, Version 2.0 (the "License");
  # you may not use this file except in compliance with the License.
@@ -13,16 +13,14 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
  */
-package com.infobip.stash;
-
-import javax.annotation.Nonnull;
+package com.infobip.bitbucket;
 
 import java.util.regex.Pattern;
 
-import com.atlassian.stash.repository.Repository;
-import com.atlassian.stash.setting.RepositorySettingsValidator;
-import com.atlassian.stash.setting.Settings;
-import com.atlassian.stash.setting.SettingsValidationErrors;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 
 class VersionPatternValidator implements RepositorySettingsValidator {
 
@@ -31,9 +29,9 @@ class VersionPatternValidator implements RepositorySettingsValidator {
     private static final Pattern versionValidationPattern = Pattern.compile(".*\\(\\?<version>.*\\).*");
 
     @Override
-    public void validate(@Nonnull Settings settings,
-                         @Nonnull SettingsValidationErrors settingsValidationErrors,
-                         @Nonnull Repository repository) {
+    public void validate(Settings settings,
+                         SettingsValidationErrors settingsValidationErrors,
+                         Repository repository) {
 
         String versionPattern = settings.getString(SETTINGS_KEY, "");
 

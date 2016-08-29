@@ -1,142 +1,120 @@
 /**
- *# Copyright 2014 Infobip
- #
- # Licensed under the Apache License, Version 2.0 (the "License");
- # you may not use this file except in compliance with the License.
- # You may obtain a copy of the License at
- #
- # http://www.apache.org/licenses/LICENSE-2.0
- #
- # Unless required by applicable law or agreed to in writing, software
- # distributed under the License is distributed on an "AS IS" BASIS,
- # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- # See the License for the specific language governing permissions and
- # limitations under the License.
+ * # Copyright 2016 Infobip
+ * #
+ * # Licensed under the Apache License, Version 2.0 (the "License");
+ * # you may not use this file except in compliance with the License.
+ * # You may obtain a copy of the License at
+ * #
+ * # http://www.apache.org/licenses/LICENSE-2.0
+ * #
+ * # Unless required by applicable law or agreed to in writing, software
+ * # distributed under the License is distributed on an "AS IS" BASIS,
+ * # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * # See the License for the specific language governing permissions and
+ * # limitations under the License.
  */
 package com.infobip.jira;
 
-import static java.util.Objects.requireNonNull;
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import com.atlassian.applinks.api.CredentialsRequiredException;
-import com.atlassian.sal.api.net.ResponseException;
-import com.atlassian.stash.commit.Commit;
-import com.google.common.base.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.atlassian.bitbucket.commit.Commit;
 
-/**
- * @author lpandzic
- */
+import java.time.Clock;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
+
 public class JiraVersionGenerator {
 
-    private static final Logger logger = LoggerFactory.getLogger(JiraVersionGenerator.class);
-
     private final JiraService jiraService;
-    private final Commit releaseChangeset;
-    private final Iterator<Commit> changesetIterator;
+    private final Commit releaseCommit;
+    private final Iterator<Commit> commitIterator;
     private final CommitMessageVersionExtractor commitMessageVersionExtractor;
+    private final Clock clock;
 
-    public JiraVersionGenerator(@Nonnull JiraService jiraService,
-                                @Nonnull Commit releaseChangeset,
-                                @Nonnull Iterator<Commit> changesetIterator,
-                                @Nonnull CommitMessageVersionExtractor commitMessageVersionExtractor) {
+    public JiraVersionGenerator(JiraService jiraService,
+                                Commit releaseCommit,
+                                Iterator<Commit> commitIterator,
+                                CommitMessageVersionExtractor commitMessageVersionExtractor,
+                                Clock clock) {
 
-        this.releaseChangeset = releaseChangeset;
+        this.releaseCommit = releaseCommit;
 
         this.jiraService = requireNonNull(jiraService);
-        this.changesetIterator = requireNonNull(changesetIterator);
+        this.commitIterator = requireNonNull(commitIterator);
         this.commitMessageVersionExtractor = requireNonNull(commitMessageVersionExtractor);
+        this.clock = clock;
     }
 
-    public void generateJiraVersionAndLinkIssues(@Nonnull String jiraVersionPrefix, @Nonnull ProjectKey projectKey) throws IOException, CredentialsRequiredException, ResponseException {
+    public void generate(String jiraVersionPrefix,
+                         ProjectKey projectKey) {
 
-        if (!changesetIterator.hasNext()) {
-            logger.warn("no changesets in commit");
+        if (!commitIterator.hasNext()) {
             return;
         }
 
-        Optional<String> versionName = commitMessageVersionExtractor.extractVersionName(releaseChangeset.getMessage());
-
-        if (!versionName.isPresent()) {
-            return;
-        }
-
-        List<Commit> versionChangesets = getVersionChangesets();
-
-        Version version = Version.of(jiraVersionPrefix + versionName.get(),
-                                     projectKey,
-                                     true,
-                                     releaseChangeset.getAuthorTimestamp());
-
-        try {
-            if (jiraService.doesJiraVersionExist(version)) {
-                logger.info(String.format("jira version %s already exists", version));
-                return;
-            }
-        } catch (CredentialsRequiredException | IOException | ResponseException e) {
-            logger.error(String.format("failed to verify if Jira version %s already exists", version), e);
-            throw e;
-        }
-
-        try {
-            jiraService.createJiraVersion(version);
-        } catch (CredentialsRequiredException | IOException | ResponseException e) {
-            logger.error("failed to create Jira version " + version, e);
-            throw e;
-        }
-
-        List<IssueKey> issueKeys = getIssueKeys(versionChangesets, projectKey);
-
-        try {
-            jiraService.addVersionToIssues(version, issueKeys);
-        } catch (CredentialsRequiredException | IOException | ResponseException e) {
-            logger.error(String.format("failed to add version %s to issues %s", version, issueKeys), e);
-            throw e;
-        }
-
-        try {
-            jiraService.releaseVersion(version);
-        } catch (CredentialsRequiredException | IOException | ResponseException e) {
-            logger.error(String.format("Failed to release version %s. ", version), e);
-            throw e;
-        }
+        commitMessageVersionExtractor.extractVersionName(releaseCommit.getMessage())
+                .ifPresent(versionName -> generate(jiraVersionPrefix, projectKey, versionName));
 
     }
 
-    private List<IssueKey> getIssueKeys(List<Commit> versionChangesets, ProjectKey projectKey) {
+    private void generate(String jiraVersionPrefix,
+                          ProjectKey projectKey,
+                          String versionName) {
 
-        List<IssueKey> issueKeys = new ArrayList<>();
+        String prefixedVersionName = jiraVersionPrefix + versionName;
+        List<Commit> versionCommits = getAllCommitsNewerThanPreviousRelease();
 
-        for (Commit versionChangeset : versionChangesets) {
-            Iterable<IssueKey> issueKeyIterable = IssueKey.of(versionChangeset);
+        SerializedVersion version = jiraService.findVersion(projectKey, prefixedVersionName)
+                .orElseGet(() -> createNewVersion(projectKey, prefixedVersionName));
 
-            for (IssueKey issueKey : issueKeyIterable) {
-                if (projectKey.equals(issueKey.getProjectKey())) {
-                    issueKeys.add(issueKey);
-                }
-            }
-        }
-
-        return issueKeys;
+        List<IssueKey> issuesSolvedInVersion = getIssueKeys(versionCommits, projectKey);
+        jiraService.addVersionToIssues(version.getName(), projectKey, issuesSolvedInVersion);
+        LocalDate releaseDate = releaseCommit.getAuthorTimestamp().toInstant().atZone(clock.getZone()).toLocalDate();
+        jiraService.releaseVersion(version, releaseDate);
     }
 
-    private List<Commit> getVersionChangesets() {
+    private SerializedVersion createNewVersion(ProjectKey projectKey, String prefixedVersionName) {
+        SerializedVersion version = new SerializedVersion(null, prefixedVersionName, projectKey.getValue(), null, false);
+        return jiraService.createJiraVersion(version);
+    }
 
-        List<Commit> versionChangesets = new ArrayList<>();
+    private List<IssueKey> getIssueKeys(List<Commit> versionCommits, ProjectKey projectKey) {
 
-        while (changesetIterator.hasNext()) {
-            Commit changeset = changesetIterator.next();
+        return versionCommits.stream()
+                .flatMap(commit -> getIssueKeys(commit, projectKey).stream())
+                .collect(Collectors.toList());
+    }
 
-            if (commitMessageVersionExtractor.extractVersionName(changeset.getMessage()).isPresent()) {
+    private List<IssueKey> getIssueKeys(Commit commit, ProjectKey projectKey) {
+
+        return Optional.ofNullable(commit.getMessage())
+                .map(message -> {
+                    Pattern pattern = Pattern.compile(projectKey.getValue() + "-([0-9]+)");
+                    Matcher matcher = pattern.matcher(message);
+                    List<IssueKey> issueKeys = new ArrayList<>();
+                    while (matcher.find()) {
+                        issueKeys.add(new IssueKey(projectKey, new IssueId(matcher.group(1))));
+                    }
+                    return issueKeys;
+                }).orElse(Collections.emptyList());
+    }
+
+    private List<Commit> getAllCommitsNewerThanPreviousRelease() {
+
+        List<Commit> versionCommit = new ArrayList<>();
+
+        while (commitIterator.hasNext()) {
+            Commit commit = commitIterator.next();
+
+            if (commitMessageVersionExtractor.extractVersionName(commit.getMessage()).isPresent()) {
                 break;
             }
 
-            versionChangesets.add(changeset);
+            versionCommit.add(commit);
         }
-        return versionChangesets;
+        return versionCommit;
     }
 }

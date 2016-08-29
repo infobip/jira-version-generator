@@ -1,5 +1,5 @@
 /**
- *# Copyright 2014 Infobip
+ *# Copyright 2016 Infobip
  #
  # Licensed under the Apache License, Version 2.0 (the "License");
  # you may not use this file except in compliance with the License.
@@ -15,53 +15,21 @@
  */
 package com.infobip.jira;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
+import lombok.Value;
+
 import java.util.Objects;
 
 /**
  * JIRA issue id. For example in JIRA issue key ABC-123 123 represents the issue id.
  *
-* @author lpandzic
 */
-@Immutable
-public class IssueId {
+@Value
+class IssueId {
 
-    final String value;
+    private final String value;
 
-    IssueId(@Nonnull String value) {
+    IssueId(String value) {
 
         this.value = Objects.requireNonNull(value);
-    }
-
-    @Override
-    public String toString() {
-
-        return value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        final IssueId issueId = (IssueId) o;
-
-        if (!value.equals(issueId.value)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-
-        return value.hashCode();
     }
 }
