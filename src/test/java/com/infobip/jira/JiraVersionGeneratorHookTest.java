@@ -270,7 +270,7 @@ public class JiraVersionGeneratorHookTest {
 
     private void givenSetting(String key, String value) {
 
-        given(settings.getString(eq(key), anyString())).willReturn(value);
+        given(settings.getString(eq(key))).willReturn(value);
     }
 
     private void givenJiraVersionDoesNotExist() throws CredentialsRequiredException, ResponseException, IOException {
