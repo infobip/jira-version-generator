@@ -65,20 +65,7 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 
     private void postReceive(RepositoryHookContext repositoryHookContext, RefChange refChange) {
 
-        String branchName = refChange.getRef().getId();
-        Iterator<Commit> commitIterator = CommitPageCrawler.of(historyService, branchName, repositoryHookContext.getRepository());
-
-        Commit hookEventCommit = findHookEventCommit(refChange.getToHash(), commitIterator);
-
-        String repositoryName = repositoryHookContext.getRepository().getName();
-        CommitMessageVersionExtractor commitMessageVersionExtractor = new CommitMessageVersionExtractor(
-                repositoryName, getSetting(repositoryHookContext, VersionPatternValidator.SETTINGS_KEY).orElse(""));
-
-        JiraVersionGenerator jiraVersionGenerator = new JiraVersionGenerator(jiraService,
-                hookEventCommit,
-                commitIterator,
-                commitMessageVersionExtractor,
-                ClockFactory.getInstance());
+        JiraVersionGenerator jiraVersionGenerator = createJiraVersionGenerator(repositoryHookContext, refChange);
 
         ProjectKey projectKey = new ProjectKey(getSetting(repositoryHookContext, ProjectKeyValidator.SETTINGS_KEY).orElse(""));
         String jiraVersionPrefix = getSetting(repositoryHookContext, "jira-version-prefix").orElse("");
@@ -97,7 +84,28 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
         return Optional.ofNullable(repositoryHookContext.getSettings().getString(key));
     }
 
-    private Commit findHookEventCommit(String id, Iterator<Commit> commitIterator) {
+    private JiraVersionGenerator createJiraVersionGenerator(RepositoryHookContext repositoryHookContext,
+                                                            RefChange refChange) {
+
+        String branchName = refChange.getRef().getId();
+        Iterator<Commit> commitIterator = CommitPageCrawler.of(historyService, branchName, repositoryHookContext.getRepository());
+
+        Commit releaseCommit = getReleaseCommit(refChange.getToHash(), commitIterator);
+
+        String repositoryName = repositoryHookContext.getRepository().getName();
+
+        CommitMessageVersionExtractor commitMessageVersionExtractor = getSetting(repositoryHookContext, VersionPatternValidator.SETTINGS_KEY)
+                .map(versionPattern -> new CommitMessageVersionExtractor(repositoryName, versionPattern))
+                .orElseGet(() -> new CommitMessageVersionExtractor(repositoryName));
+
+        return new JiraVersionGenerator(jiraService,
+                releaseCommit,
+                commitIterator,
+                commitMessageVersionExtractor,
+                ClockFactory.getInstance());
+    }
+
+    private Commit getReleaseCommit(String id, Iterator<Commit> commitIterator) {
 
         while (commitIterator.hasNext()) {
 

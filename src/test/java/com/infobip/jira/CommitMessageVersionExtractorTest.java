@@ -24,7 +24,7 @@ public class CommitMessageVersionExtractorTest {
     @Test
     public void shouldSuccessfullyExtractVersionFromMavenReleaseMessage() {
 
-        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("test-project", "");
+        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("test-project");
 
         String actual = extractor.extractVersionName("[maven-release-plugin] prepare release test-project-1.0.0").orElse(null);
 
@@ -44,7 +44,7 @@ public class CommitMessageVersionExtractorTest {
     @Test
     public void shouldFailToExtractVersionFromNonReleaseMessage() {
 
-        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("test-project", "");
+        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("test-project");
 
         String actual = extractor.extractVersionName("Non release commit message").orElse(null);
 
@@ -53,7 +53,7 @@ public class CommitMessageVersionExtractorTest {
 
     @Test
     public void shouldHandleNull() {
-        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("", "");
+        CommitMessageVersionExtractor extractor = new CommitMessageVersionExtractor("");
 
         String actual = extractor.extractVersionName(null).orElse(null);
 

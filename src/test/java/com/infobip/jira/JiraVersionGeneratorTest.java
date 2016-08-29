@@ -134,8 +134,7 @@ public class JiraVersionGeneratorTest {
         jiraVersionGenerator = new JiraVersionGenerator(jiraService,
                 commit,
                 commitIterator,
-                new CommitMessageVersionExtractor(
-                        "test-project", null), clock);
+                new CommitMessageVersionExtractor("test-project"), clock);
     }
 
 }
