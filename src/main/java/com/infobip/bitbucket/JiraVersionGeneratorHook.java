@@ -21,6 +21,7 @@ import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.*;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.infobip.infrastructure.ClockFactory;
 import com.infobip.jira.*;
@@ -33,13 +34,13 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 
     private static final Logger logger = LoggerFactory.getLogger(JiraVersionGeneratorHook.class);
 
-    private final CommitService historyService;
+    private final CommitService commitService;
     private final JiraService jiraService;
     private final ImmutableList<RepositorySettingsValidator> settingsValidators;
 
-    public JiraVersionGeneratorHook(CommitService historyService, JiraService jiraService) {
+    public JiraVersionGeneratorHook(CommitService commitService, JiraService jiraService) {
 
-        this.historyService = historyService;
+        this.commitService = commitService;
         this.jiraService = jiraService;
 
         settingsValidators = ImmutableList.of(new ProjectKeyValidator(), new VersionPatternValidator());
@@ -67,34 +68,43 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
 
         JiraVersionGenerator jiraVersionGenerator = createJiraVersionGenerator(repositoryHookContext, refChange);
 
-        ProjectKey projectKey = new ProjectKey(getSetting(repositoryHookContext, ProjectKeyValidator.SETTINGS_KEY).orElse(""));
-        String jiraVersionPrefix = getSetting(repositoryHookContext, "jira-version-prefix").orElse("");
+        ProjectKey projectKey = new ProjectKey(requireNonEmptySetting(repositoryHookContext, ProjectKeyValidator.SETTINGS_KEY));
+        String jiraVersionPrefix = getNonEmptySetting(repositoryHookContext, "jira-version-prefix").orElse("");
         jiraVersionGenerator.generate(jiraVersionPrefix, projectKey);
     }
 
     @Override
     public void validate(Settings settings, SettingsValidationErrors settingsValidationErrors, Repository repository) {
 
-        for (RepositorySettingsValidator settingsValidator : settingsValidators) {
-            settingsValidator.validate(settings, settingsValidationErrors, repository);
-        }
+        settingsValidators.forEach(validator -> validator.validate(settings, settingsValidationErrors, repository));
     }
 
-    private Optional<String> getSetting(RepositoryHookContext repositoryHookContext, String key) {
-        return Optional.ofNullable(repositoryHookContext.getSettings().getString(key));
+    private Optional<String> getNonEmptySetting(RepositoryHookContext repositoryHookContext, String key) {
+        String setting = Strings.emptyToNull(repositoryHookContext.getSettings().getString(key));
+        return Optional.ofNullable(setting);
+    }
+
+    private String requireNonEmptySetting(RepositoryHookContext repositoryHookContext, String key) {
+        String setting = repositoryHookContext.getSettings().getString(key);
+
+        if(Strings.isNullOrEmpty(setting)) {
+            String message = String.format("%s hook setting is not set to a non empty value", key);
+            throw new IllegalStateException(message);
+        }
+
+        return setting;
     }
 
     private JiraVersionGenerator createJiraVersionGenerator(RepositoryHookContext repositoryHookContext,
                                                             RefChange refChange) {
 
-        String branchName = refChange.getRef().getId();
-        Iterator<Commit> commitIterator = CommitPageCrawler.of(historyService, branchName, repositoryHookContext.getRepository());
+        Iterator<Commit> commitIterator = CommitPageCrawler.of(commitService, repositoryHookContext.getRepository(), refChange);
 
-        Commit releaseCommit = getReleaseCommit(refChange.getToHash(), commitIterator);
+        Commit releaseCommit = commitIterator.next();
 
         String repositoryName = repositoryHookContext.getRepository().getName();
 
-        CommitMessageVersionExtractor commitMessageVersionExtractor = getSetting(repositoryHookContext, VersionPatternValidator.SETTINGS_KEY)
+        CommitMessageVersionExtractor commitMessageVersionExtractor = getNonEmptySetting(repositoryHookContext, VersionPatternValidator.SETTINGS_KEY)
                 .map(versionPattern -> new CommitMessageVersionExtractor(repositoryName, versionPattern))
                 .orElseGet(() -> new CommitMessageVersionExtractor(repositoryName));
 
@@ -103,19 +113,5 @@ public class JiraVersionGeneratorHook implements AsyncPostReceiveRepositoryHook,
                 commitIterator,
                 commitMessageVersionExtractor,
                 ClockFactory.getInstance());
-    }
-
-    private Commit getReleaseCommit(String id, Iterator<Commit> commitIterator) {
-
-        while (commitIterator.hasNext()) {
-
-            Commit next = commitIterator.next();
-
-            if (next.getId().equals(id)) {
-                return next;
-            }
-        }
-
-        throw new IllegalArgumentException(String.format("Commit with id %s not found", id));
     }
 }

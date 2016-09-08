@@ -15,41 +15,46 @@
  */
 package com.infobip.bitbucket;
 
-import com.atlassian.bitbucket.commit.Commit;
-import com.atlassian.bitbucket.commit.CommitService;
-import com.atlassian.bitbucket.commit.CommitsRequest;
-import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.commit.*;
+import com.atlassian.bitbucket.repository.*;
 import com.atlassian.bitbucket.util.Page;
 import com.atlassian.bitbucket.util.PageRequest;
 import com.atlassian.bitbucket.util.PageUtils;
 
 import java.util.Iterator;
+import java.util.function.Function;
 
 class CommitPageCrawler implements Iterator<Commit> {
 
-    private final CommitService commitService;
-    private final String branchName;
-    private final Repository repository;
+    private final static int PAGE_REQUEST_LIMIT = 5;
+
+    private final Function<PageRequest, Page<Commit>> pageProvider;
+
     private boolean hasReachedEnd;
     private Page<Commit> currentPage;
     private Iterator<Commit> currentPageIterator;
 
-    public static CommitPageCrawler of(CommitService historyService,
-                                       String branchName,
-                                       Repository repository) {
+    public static CommitPageCrawler of(CommitService commitService,
+                                       Repository repository,
+                                       RefChange from) {
 
-        CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
+        Function<PageRequest, Page<Commit>> pageProvider = pageRequest -> {
+            CommitsBetweenRequest request = new CommitsBetweenRequest.Builder(repository)
+                    .include(from.getFromHash())
+                    .build();
 
-        Page<Commit> currentPage = historyService.getCommits(request, PageUtils.newRequest(0, 2));
+            return commitService.getCommitsBetween(request, pageRequest);
+        };
 
-        return new CommitPageCrawler(historyService, branchName, repository, currentPage);
+        Page<Commit> currentPage = pageProvider.apply(PageUtils.newRequest(0, PAGE_REQUEST_LIMIT));
+
+        return new CommitPageCrawler(pageProvider, currentPage);
     }
 
-    private CommitPageCrawler(CommitService commitService, String branchName, Repository repository, Page<Commit> currentPage) {
+    private CommitPageCrawler(Function<PageRequest, Page<Commit>> pageProvider,
+                              Page<Commit> currentPage) {
 
-        this.commitService = commitService;
-        this.branchName = branchName;
-        this.repository = repository;
+        this.pageProvider = pageProvider;
         hasReachedEnd = false;
         this.currentPage = currentPage;
         currentPageIterator = currentPage.getValues().iterator();
@@ -96,9 +101,7 @@ class CommitPageCrawler implements Iterator<Commit> {
             return;
         }
 
-        CommitsRequest request = new CommitsRequest.Builder(repository, branchName).build();
-
-        currentPage = commitService.getCommits(request, nextPageRequest);
+        currentPage = pageProvider.apply(currentPage.getNextPageRequest());
 
         if (currentPage.getSize() == 0) {
             hasReachedEnd = true;
