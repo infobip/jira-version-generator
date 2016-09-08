@@ -9,7 +9,7 @@
 	<packaging>atlassian-plugin</packaging>
 	<version>2.0.0-SNAPSHOT</version>
 	<description>
-		Stash (post receive hook) plugin that generates Jira version and links Jira issues to the version.
+		Bitbucket (post receive hook) plugin that generates Jira version and links Jira issues to the version.
 	</description>
 
 	<parent>
@@ -60,7 +60,6 @@
 		<lombok.version>1.16.10</lombok.version>
 
 		<!-- PLUGIN VERSIONS -->
-		<maven-stash-plugin.version>5.0.3</maven-stash-plugin.version>
 		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
 		<maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
 		<cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
