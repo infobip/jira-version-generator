@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/infobip/jira-version-generator.svg?branch=master)](https://travis-ci.org/infobip/jira-version-generator)
 [![Coverage Status](https://coveralls.io/repos/infobip/jira-version-generator/badge.png?branch=master)](https://coveralls.io/r/infobip/jira-version-generator?branch=master)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator)
-[![Stories in Ready](https://badge.waffle.io/infobip/jira-version-generator.svg?label=ready&title=Ready)](http://waffle.io/infobip/jira-version-generator)
+[![Stories in Backlog](https://badge.waffle.io/infobip/jira-version-generator.svg?label=backlog&title=Waffle Backlog)](http://waffle.io/infobip/jira-version-generator)
 
 [Bitbucket Server](https://www.atlassian.com/software/bitbucket/server) [(post receive hook) plugin](https://confluence.atlassian.com/display/STASH/Using+repository+hooks#Usingrepositoryhooks-Post-receivehooks) that generates [Jira](https://www.atlassian.com/software/jira) version and links issues to the version.
 
