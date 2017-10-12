@@ -40,7 +40,7 @@ class CommitPageCrawler implements Iterator<Commit> {
 
         Function<PageRequest, Page<Commit>> pageProvider = pageRequest -> {
             CommitsBetweenRequest request = new CommitsBetweenRequest.Builder(repository)
-                    .include(from.getFromHash())
+                    .include(from.getToHash())
                     .build();
 
             return commitService.getCommitsBetween(request, pageRequest);
