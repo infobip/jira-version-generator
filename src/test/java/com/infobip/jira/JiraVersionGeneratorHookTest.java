@@ -81,8 +81,8 @@ public class JiraVersionGeneratorHookTest {
         given(repositoryHookContext.getSettings()).willReturn(settings);
         given(settings.getString(anyString(), eq(""))).willReturn("");
         given(repositoryHookContext.getRepository()).willReturn(repository);
-        given(latestRefChange.getFromHash()).willReturn("latestRefChange");
-        given(olderRefChange.getFromHash()).willReturn("olderRefChange");
+        given(latestRefChange.getToHash()).willReturn("latestRefChange");
+        given(olderRefChange.getToHash()).willReturn("olderRefChange");
     }
 
     @Test
@@ -270,7 +270,7 @@ public class JiraVersionGeneratorHookTest {
 
     private void givenCommits(RefChange refChange, Commit... commits) {
 
-        CommitsBetweenRequest request = new CommitsBetweenRequest.Builder(repository).include(refChange.getFromHash()).build();
+        CommitsBetweenRequest request = new CommitsBetweenRequest.Builder(repository).include(refChange.getToHash()).build();
         given(commitService.getCommitsBetween(refEq(request), any())).willReturn(new PageImpl<>(null, Arrays.asList(commits), true));
     }
 
@@ -292,7 +292,7 @@ public class JiraVersionGeneratorHookTest {
     private void thenGetCommits(VerificationMode verificationMode, RefChange refChange) {
 
         CommitsBetweenRequest request = new CommitsBetweenRequest.Builder(repository)
-                .include(refChange.getFromHash())
+                .include(refChange.getToHash())
                 .build();
 
         then(commitService).should(verificationMode).getCommitsBetween(refEq(request),
