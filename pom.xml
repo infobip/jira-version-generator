@@ -3,25 +3,30 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<name>Jira Version Generator</name>
 	<groupId>com.infobip</groupId>
 	<artifactId>jira-version-generator</artifactId>
+	<version>2.0.0</version>
 	<packaging>atlassian-plugin</packaging>
-	<version>2.0.0-SNAPSHOT</version>
+
+	<name>Jira Version Generator</name>
+
 	<description>
 		Bitbucket (post receive hook) plugin that generates Jira version and links Jira issues to the version.
 	</description>
 
+	<url>https://github.com/infobip/jira-version-generator</url>
+
 	<organization>
-		<name>Infobip</name>
+		<name>Infobip Ltd.</name>
 		<url>https://www.infobip.com/</url>
 	</organization>
 
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
 		</license>
 	</licenses>
 
@@ -30,6 +35,21 @@
 		<connection>scm:git:git://github.com:infobip/jira-version-generator.git</connection>
 		<developerConnection>scm:git:git@github.com:infobip/jira-version-generator.git</developerConnection>
 	</scm>
+
+	<developers>
+		<developer>
+			<id>lpandzic</id>
+			<name>Lovro Pandžić</name>
+			<email>lovro.pandzic@infobip.com</email>
+			<organization>Infobip Ltd.</organization>
+		</developer>
+		<developer>
+			<id>ahula</id>
+			<name>Anja Hula</name>
+			<email>anja.hula@infobip.com</email>
+			<organization>Infobip Ltd.</organization>
+		</developer>
+	</developers>
 
 	<issueManagement>
 		<system>GitHub Issues</system>
@@ -242,6 +262,36 @@
 		</plugins>
 	</build>
 
+	<profiles>
+		<profile>
+			<id>release-sign-artifacts</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
 	<repositories>
 		<repository>
 			<id>atlassian-public</id>
@@ -271,4 +321,18 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
+
+	<distributionManagement>
+		<repository>
+			<id>ossrh-releases</id>
+			<name>SonatypeReleases</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+		<snapshotRepository>
+			<id>ossrh-snapshots</id>
+			<name>SonatypeSnapshots</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
+
 </project>
