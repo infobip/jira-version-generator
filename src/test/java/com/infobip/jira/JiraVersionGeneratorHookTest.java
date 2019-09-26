@@ -17,13 +17,14 @@ package com.infobip.jira;
 
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.bitbucket.commit.*;
-import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
-import com.atlassian.bitbucket.repository.*;
+import com.atlassian.bitbucket.hook.repository.PostRepositoryHookContext;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookRequest;
+import com.atlassian.bitbucket.repository.RefChange;
+import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.TestApplicationUser;
 import com.atlassian.bitbucket.util.*;
 import com.atlassian.sal.api.net.ResponseException;
-import com.google.common.collect.ImmutableList;
 import com.infobip.bitbucket.JiraVersionGeneratorHook;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,7 +62,10 @@ public class JiraVersionGeneratorHookTest {
     private JiraService jiraService;
 
     @Mock
-    private RepositoryHookContext repositoryHookContext;
+    private PostRepositoryHookContext context;
+
+    @Mock
+    private RepositoryHookRequest request;
 
     @Mock
     private Repository repository;
@@ -76,11 +80,11 @@ public class JiraVersionGeneratorHookTest {
     private Settings settings;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
-        given(repositoryHookContext.getSettings()).willReturn(settings);
+        given(context.getSettings()).willReturn(settings);
         given(settings.getString(anyString(), eq(""))).willReturn("");
-        given(repositoryHookContext.getRepository()).willReturn(repository);
+        given(request.getRepository()).willReturn(repository);
         given(latestRefChange.getToHash()).willReturn("latestRefChange");
         given(olderRefChange.getToHash()).willReturn("olderRefChange");
     }
@@ -271,7 +275,7 @@ public class JiraVersionGeneratorHookTest {
     private void givenCommits(RefChange refChange, Commit... commits) {
 
         CommitsBetweenRequest request = new CommitsBetweenRequest.Builder(repository).include(refChange.getToHash()).build();
-        given(commitService.getCommitsBetween(refEq(request), any())).willReturn(new PageImpl<>(null, Arrays.asList(commits), true));
+        given(commitService.getCommitsBetween(refEq(request), any())).willReturn(new PageImpl<>(new PageRequestImpl(0, commits.length), Arrays.asList(commits), true));
     }
 
     private void givenRepositoryName(String value) {
@@ -281,7 +285,8 @@ public class JiraVersionGeneratorHookTest {
 
     private void whenPostReceive(RefChange refChange) {
 
-        jiraVersionGeneratorHook.postReceive(repositoryHookContext, ImmutableList.of(refChange));
+        given(request.getRefChanges()).willReturn(Collections.singletonList(refChange));
+        jiraVersionGeneratorHook.postUpdate(context, request);
     }
 
     private SerializedVersion unreleasedSerializedVersion(String name, String Project) {

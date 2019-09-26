@@ -15,23 +15,22 @@
  */
 package com.infobip.bitbucket;
 
+import com.atlassian.bitbucket.scope.Scope;
+import com.atlassian.bitbucket.setting.*;
+
+import javax.annotation.Nonnull;
 import java.util.regex.Pattern;
 
-import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
-import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.bitbucket.setting.SettingsValidationErrors;
-
-class VersionPatternValidator implements RepositorySettingsValidator {
+class VersionPatternValidator implements SettingsValidator {
 
     static final String SETTINGS_KEY = "release-commit-version-pattern";
 
     private static final Pattern versionValidationPattern = Pattern.compile(".*\\(\\?<version>.*\\).*");
 
     @Override
-    public void validate(Settings settings,
-                         SettingsValidationErrors settingsValidationErrors,
-                         Repository repository) {
+    public void validate(@Nonnull Settings settings,
+                         @Nonnull SettingsValidationErrors settingsValidationErrors,
+                         @Nonnull Scope scope) {
 
         String versionPattern = settings.getString(SETTINGS_KEY, "");
 

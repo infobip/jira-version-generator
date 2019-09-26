@@ -15,21 +15,20 @@
  */
 package com.infobip.bitbucket;
 
-import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
-import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.bitbucket.setting.SettingsValidationErrors;
+import com.atlassian.bitbucket.scope.Scope;
+import com.atlassian.bitbucket.setting.*;
 import com.infobip.jira.ProjectKey;
 
-class ProjectKeyValidator implements RepositorySettingsValidator {
+import javax.annotation.Nonnull;
+
+class ProjectKeyValidator implements SettingsValidator {
 
 	static final String SETTINGS_KEY = "jira-project-key";
 
 	@Override
-	public void validate(Settings settings,
-	                     SettingsValidationErrors settingsValidationErrors,
-	                     Repository repository) {
-
+	public void validate(@Nonnull Settings settings,
+	                     @Nonnull SettingsValidationErrors settingsValidationErrors,
+	                     @Nonnull Scope scope) {
 		try {
 			new ProjectKey(settings.getString(SETTINGS_KEY, ""));
 		} catch (IllegalArgumentException e) {

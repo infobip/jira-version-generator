@@ -15,20 +15,19 @@
  */
 package com.infobip.bitbucket;
 
+import com.atlassian.bitbucket.scope.Scope;
+import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.setting.SettingsValidationErrors;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
-
-import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.bitbucket.setting.SettingsValidationErrors;
-import com.infobip.bitbucket.ProjectKeyValidator;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectKeyValidatorTest {
@@ -42,7 +41,7 @@ public class ProjectKeyValidatorTest {
     private SettingsValidationErrors settingsValidationErrors;
 
     @Mock
-    private Repository repository;
+    private Scope scope;
 
     @Test
     public void shouldAddErrorsForEmptyProjectKeyString() {
@@ -85,6 +84,6 @@ public class ProjectKeyValidatorTest {
 
     private void whenValidate() {
 
-        projectKeyValidator.validate(settings, settingsValidationErrors, repository);
+        projectKeyValidator.validate(settings, settingsValidationErrors, scope);
     }
 }
