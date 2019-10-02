@@ -71,7 +71,7 @@
 		<mockito-core.version>1.10.19</mockito-core.version>
 		<bitbucket.data.version>4.8.2</bitbucket.data.version>
 
-		<lombok.version>1.16.10</lombok.version>
+		<lombok.version>1.18.10</lombok.version>
 
 		<!-- PLUGIN VERSIONS -->
 		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
