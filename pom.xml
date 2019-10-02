@@ -74,8 +74,10 @@
 		<lombok.version>1.16.10</lombok.version>
 
 		<!-- PLUGIN VERSIONS -->
-		<maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
-		<maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
+		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+		<maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
+		<maven-source-plugin.version>3.1.0</maven-source-plugin.version>
+		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
 		<cobertura-maven-plugin.version>2.7</cobertura-maven-plugin.version>
 		<coveralls-maven-plugin.version>4.2.0</coveralls-maven-plugin.version>
 		<bitbucket-maven-plugin.version>1.30.5</bitbucket-maven-plugin.version>
@@ -254,7 +256,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
+				<version>${maven-source-plugin.version}</version>
 				<configuration>
 					<skipSource>true</skipSource>
 				</configuration>
@@ -276,7 +278,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.6</version>
+						<version>${maven-gpg-plugin.version}</version>
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
