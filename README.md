@@ -25,9 +25,9 @@
 
 ## <a name="News"></a> News
 
-### 2.0.0
+### 2.0.1
 
-Upgrade to Java 8 and Bitbucket Server.
+Upgrade to Bitbucket Server 6.5.1.
 
 For previous changes see the [changelog](https://github.com/infobip/jira-version-generator/blob/master/CHANGELOG.md).
 
