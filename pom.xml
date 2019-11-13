@@ -83,7 +83,7 @@
 		<bitbucket-maven-plugin.version>1.30.5</bitbucket-maven-plugin.version>
 
 		<!-- OTHER PROPERTIES -->
-		<java.version>1.8</java.version>
+		<java.version>11</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.javadoc.skip>true</maven.javadoc.skip>
 	</properties>
