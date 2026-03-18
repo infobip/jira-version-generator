@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.verification.VerificationMode;
 
 import java.io.IOException;
@@ -41,10 +41,10 @@ import java.util.*;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.refEq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.times;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -83,7 +83,6 @@ public class JiraVersionGeneratorHookTest {
     public void setUp() {
 
         given(context.getSettings()).willReturn(settings);
-        given(settings.getString(anyString(), eq(""))).willReturn("");
         given(request.getRepository()).willReturn(repository);
         given(latestRefChange.getToHash()).willReturn("latestRefChange");
         given(olderRefChange.getToHash()).willReturn("olderRefChange");

@@ -16,11 +16,8 @@
 package com.infobip.jira;
 
 import lombok.Value;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 @Value
 public class Version {

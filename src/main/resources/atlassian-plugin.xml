@@ -3,6 +3,7 @@
 		<description>${project.description}</description>
 		<version>${project.version}</version>
 		<vendor name="${project.organization.name}" url="${project.organization.url}" />
+		<param name="application-version.min">9.4.17</param>
 	</plugin-info>
 
 	<component-import key="applicationLinkService" interface="com.atlassian.applinks.api.ApplicationLinkService" />

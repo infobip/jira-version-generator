@@ -20,12 +20,12 @@ import com.atlassian.bitbucket.commit.Commit;
 import com.atlassian.bitbucket.commit.SimpleCommit;
 import com.atlassian.bitbucket.user.TestApplicationUser;
 import com.atlassian.sal.api.net.ResponseException;
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -34,7 +34,7 @@ import java.util.*;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JiraVersionGeneratorTest {
@@ -110,7 +110,7 @@ public class JiraVersionGeneratorTest {
 
         then(jiraService).should().addVersionToIssues("1.0.1",
                 new ProjectKey("TEST"),
-                ImmutableList.of(new IssueKey(new ProjectKey("TEST"), new IssueId("1"))));
+                List.of(new IssueKey(new ProjectKey("TEST"), new IssueId("1"))));
     }
 
     @Test

@@ -20,8 +20,7 @@ import com.atlassian.bitbucket.hook.repository.*;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.scope.Scope;
 import com.atlassian.bitbucket.setting.*;
-import com.google.common.base.Strings;
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 import com.infobip.infrastructure.ClockFactory;
 import com.infobip.jira.*;
 import org.slf4j.Logger;
@@ -36,14 +35,14 @@ public class JiraVersionGeneratorHook implements PostRepositoryHook, SettingsVal
 
     private final CommitService commitService;
     private final JiraService jiraService;
-    private final ImmutableList<SettingsValidator> settingsValidators;
+    private final List<SettingsValidator> settingsValidators;
 
     public JiraVersionGeneratorHook(CommitService commitService, JiraService jiraService) {
 
         this.commitService = commitService;
         this.jiraService = jiraService;
 
-        settingsValidators = ImmutableList.of(new ProjectKeyValidator(), new VersionPatternValidator());
+        settingsValidators = List.of(new ProjectKeyValidator(), new VersionPatternValidator());
     }
 
     @Override
@@ -83,14 +82,15 @@ public class JiraVersionGeneratorHook implements PostRepositoryHook, SettingsVal
     }
 
     private Optional<String> getNonEmptySetting(RepositoryHookContext context, String key) {
-        String setting = Strings.emptyToNull(context.getSettings().getString(key));
+        String setting = context.getSettings().getString(key);
+        setting = (setting == null || setting.isEmpty()) ? null : setting;
         return Optional.ofNullable(setting);
     }
 
     private String requireNonEmptySetting(RepositoryHookContext context, String key) {
         String setting = context.getSettings().getString(key);
 
-        if (Strings.isNullOrEmpty(setting)) {
+        if (setting == null || setting.isEmpty()) {
             String message = String.format("%s hook setting is not set to a non empty value", key);
             throw new IllegalStateException(message);
         }
