@@ -5,7 +5,7 @@
 
 	<groupId>com.infobip</groupId>
 	<artifactId>jira-version-generator</artifactId>
-	<version>2.0.2-SNAPSHOT</version>
+	<version>3.0.0</version>
 	<packaging>atlassian-plugin</packaging>
 
 	<name>Jira Version Generator</name>
