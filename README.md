@@ -2,13 +2,12 @@
 
 ![](https://github.com/infobip/jira-version-generator/workflows/maven/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/infobip/jira-version-generator/badge.png?branch=master)](https://coveralls.io/r/infobip/jira-version-generator?branch=master)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator)
 
 [Bitbucket Server](https://www.atlassian.com/software/bitbucket/server) [(post receive hook) plugin](https://confluence.atlassian.com/display/STASH/Using+repository+hooks#Usingrepositoryhooks-Post-receivehooks) that generates [Jira](https://www.atlassian.com/software/jira) version and links issues to the version.
 
 ## Contents
 
-1. [News](#News)
+1. [Changelog](#Changelog)
 2. [Requirements](#Requirements)
 3. [Installation](#Installation)
 4. [Usage](#Usage)
@@ -21,18 +20,16 @@
 8. [Credits](#Credits)
 9. [License](#License)
 
-## <a name="News"></a> News
+## <a name="Changelog"></a> Changelog
 
-### 2.0.1
-
-Upgrade to Bitbucket Server 6.5.1.
-
-For previous changes see the [changelog](https://github.com/infobip/jira-version-generator/blob/master/CHANGELOG.md).
+For changes check the [changelog](CHANGELOG.md).
 
 ## <a name="Requirements"></a> Requirements:
 
-1. Bitbucket Server has an application link with a Jira instance.
-2. User that commits the release commit exists on Jira and has rights to create the version and modify issues on the project.
+1. Bitbucket Server 9.4.17+
+2. Java 17+
+3. Bitbucket Server has an application link with a Jira instance.
+4. User that commits the release commit exists on Jira and has rights to create the version and modify issues on the project.
 
 By default, each commit on the repository is checked against the [Maven Release Plugin](http://maven.apache.org/maven-release/maven-release-plugin/) release commit message pattern: `\[maven-release-plugin\] prepare release repositoryName-(?<version>.*)`.
 This behavior can be changed by changing the [release commit version pattern](#ReleaseCommitVersionPattern).
@@ -48,7 +45,7 @@ If the version already exists on Jira, the version will not be created and issue
 
 ## <a name="Installation"></a> Installation:
 
-Simply download latest jar from the Maven Central [here](https://maven-badges.herokuapp.com/maven-central/com.infobip/jira-version-generator) and install it on your Bitbucket Server instance.
+Download the latest jar from [GitHub Releases](https://github.com/infobip/jira-version-generator/releases) and install it on your Bitbucket Server instance.
 
 ## <a name="Usage"></a> Usage:
 
