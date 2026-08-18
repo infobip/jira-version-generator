@@ -19,7 +19,7 @@ import com.atlassian.bitbucket.commit.*;
 import com.atlassian.bitbucket.repository.*;
 import com.atlassian.bitbucket.util.Page;
 import com.atlassian.bitbucket.util.PageRequest;
-import com.atlassian.bitbucket.util.PageUtils;
+import com.atlassian.bitbucket.util.PageRequestImpl;
 
 import java.util.Iterator;
 import java.util.function.Function;
@@ -46,7 +46,7 @@ class CommitPageCrawler implements Iterator<Commit> {
             return commitService.getCommitsBetween(request, pageRequest);
         };
 
-        Page<Commit> currentPage = pageProvider.apply(PageUtils.newRequest(0, PAGE_REQUEST_LIMIT));
+        Page<Commit> currentPage = pageProvider.apply(new PageRequestImpl(0, PAGE_REQUEST_LIMIT));
 
         return new CommitPageCrawler(pageProvider, currentPage);
     }

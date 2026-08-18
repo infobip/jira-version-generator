@@ -22,7 +22,7 @@ import com.atlassian.bitbucket.hook.repository.RepositoryHookRequest;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.bitbucket.user.TestApplicationUser;
+import com.atlassian.bitbucket.user.Person;
 import com.atlassian.bitbucket.util.*;
 import com.atlassian.sal.api.net.ResponseException;
 import com.infobip.bitbucket.JiraVersionGeneratorHook;
@@ -305,7 +305,7 @@ public class JiraVersionGeneratorHookTest {
 
     Commit givenCommit(String message, LocalDate authorTimestamp) {
         return new SimpleCommit.Builder("id")
-                .author(new TestApplicationUser(""))
+                .author(org.mockito.Mockito.mock(Person.class))
                 .message(message)
                 .authorTimestamp(Date.from(authorTimestamp.atStartOfDay().toInstant(ZoneOffset.UTC)))
                 .build();
@@ -313,7 +313,7 @@ public class JiraVersionGeneratorHookTest {
 
     Commit givenCommit(String message) {
         return new SimpleCommit.Builder("id")
-                .author(new TestApplicationUser(""))
+                .author(org.mockito.Mockito.mock(Person.class))
                 .message(message)
                 .build();
     }

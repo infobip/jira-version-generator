@@ -18,7 +18,7 @@ package com.infobip.jira;
 import com.atlassian.applinks.api.CredentialsRequiredException;
 import com.atlassian.bitbucket.commit.Commit;
 import com.atlassian.bitbucket.commit.SimpleCommit;
-import com.atlassian.bitbucket.user.TestApplicationUser;
+import com.atlassian.bitbucket.user.Person;
 import com.atlassian.sal.api.net.ResponseException;
 import java.util.List;
 import org.junit.Before;
@@ -140,7 +140,7 @@ public class JiraVersionGeneratorTest {
 
     private Commit givenCommit(String id, String message, LocalDate authorTimestamp) {
         return new SimpleCommit.Builder(id)
-                .author(new TestApplicationUser(""))
+                .author(org.mockito.Mockito.mock(Person.class))
                 .message(message)
                 .authorTimestamp(Date.from(authorTimestamp.atStartOfDay().toInstant(ZoneOffset.UTC)))
                 .build();

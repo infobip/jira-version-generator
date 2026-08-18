@@ -4,7 +4,7 @@
 
 	<groupId>com.infobip</groupId>
 	<artifactId>jira-version-generator</artifactId>
-	<version>3.0.2-SNAPSHOT</version>
+	<version>4.0.0-SNAPSHOT</version>
 	<packaging>atlassian-plugin</packaging>
 
 	<name>Jira Version Generator</name>
@@ -63,25 +63,25 @@
 
 	<properties>
 		<!-- DEPENDENCY VERSIONS -->
-		<bitbucket.version>9.4.17</bitbucket.version>
+		<bitbucket.version>10.2.6</bitbucket.version>
 		<amps.version>9.9.1</amps.version>
 		<slf4j.version>1.7.21</slf4j.version>
-		<jackson.version>2.12.4</jackson.version>
-		<assertj-core.version>3.5.2</assertj-core.version>
+		<assertj-core.version>3.27.7</assertj-core.version>
 		<mockito-core.version>5.23.0</mockito-core.version>
-		<bitbucket.data.version>9.4.17</bitbucket.data.version>
+		<junit.version>4.13.2</junit.version>
+		<bitbucket.data.version>10.2.6</bitbucket.data.version>
 
 		<lombok.version>1.18.44</lombok.version>
 
 		<!-- PLUGIN VERSIONS -->
-		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+		<maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
 		<maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
 		<coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
 		<jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
 		<quickreload-plugin.version>6.2.1</quickreload-plugin.version>
 
 		<!-- OTHER PROPERTIES -->
-		<java.version>17</java.version>
+		<java.version>21</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.javadoc.skip>true</maven.javadoc.skip>
 	</properties>
@@ -154,11 +154,6 @@
 			<artifactId>applinks-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.atlassian.bitbucket.server</groupId>
-			<artifactId>bitbucket-page-objects</artifactId>
-			<scope>provided</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -185,6 +180,13 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>${mockito-core.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -26,8 +26,8 @@ For changes check the [changelog](CHANGELOG.md).
 
 ## <a name="Requirements"></a> Requirements:
 
-1. Bitbucket Server 9.4.17+
-2. Java 17+
+1. Bitbucket Data Center 10.2.6+
+2. Java 21+
 3. Bitbucket Server has an application link with a Jira instance.
 4. User that commits the release commit exists on Jira and has rights to create the version and modify issues on the project.
 
@@ -105,7 +105,7 @@ Pull requests are welcome!
 
 - `atlas-clean` - similar to mvn clean, removes local instances of products (Bitbucket Server, Jira)
 - `atlas-debug` - runs the project product (Bitbucket Server) in debug mode, [guide for remote debugging](https://developer.atlassian.com/display/DOCS/Creating+a+Remote+Debug+Target)
-- `atlas-run-standalone --product jira -v 6.4` - runs local Jira instance of version 6.4
+- `atlas-run-standalone --product jira --version 10.3.23` - runs a local standalone Jira instance of version 10.3.23
 
 ## <a name="Credits"></a> Credits
 
