@@ -4,7 +4,7 @@
 
 	<groupId>com.infobip</groupId>
 	<artifactId>jira-version-generator</artifactId>
-	<version>4.0.0</version>
+	<version>4.0.1-SNAPSHOT</version>
 	<packaging>atlassian-plugin</packaging>
 
 	<name>Jira Version Generator</name>
@@ -33,7 +33,7 @@
 		<url>https://github.com/infobip/jira-version-generator.git</url>
 		<connection>scm:git:git://github.com:infobip/jira-version-generator.git</connection>
 		<developerConnection>scm:git:git@github.com:infobip/jira-version-generator.git</developerConnection>
-	  <tag>jira-version-generator-4.0.0</tag>
+	  <tag>HEAD</tag>
   </scm>
 
 	<developers>
